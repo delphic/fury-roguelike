@@ -6,7 +6,7 @@ html, body {
 body {
 	background-color: #303030;
 	overflow-y: hidden;
-	font-family: monospace;
+	font-family: 'Courier New', monospace;
 }
 
 h1 {
