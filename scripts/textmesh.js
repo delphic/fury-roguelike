@@ -5,11 +5,21 @@ const { vec3 } = require('../fury/src/maths');
 module.exports = (function(){
 	let exports = {};
 
-	exports.create = (text, scene, atlas, position) => {
+	let Alignment = exports.Alignment = {
+		"left": 0,
+		"center": 1,
+		"right": 2
+	};
+
+	exports.create = (text, scene, atlas, position, alignment) => {
 		let textMesh = {}; 
 
-		// Center Alignment
-		let offset = Math.floor(text.length / 2) * atlas.tileSize;
+		let offset = 0;
+		if (alignment == Alignment.center) {
+			offset = Math.floor(text.length / 2) * atlas.tileSize;
+		} else if (alignment == Alignment.right) {
+			offset = text.length * atlas.tileSize;
+		}
 		let pos = vec3.fromValues(position[0] - offset, position[1], position[2]);
 
 		let tileMap = TileMap.create(scene, text.length, 1, pos, atlas);

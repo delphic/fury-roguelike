@@ -6,10 +6,10 @@ module.exports = (function(){
 	exports.createQuadMeshConfig = (w, h) => {
 		return {
 			vertices: [ 
-				w * 0.5, h * 0.5, 0.0,
-				h * -0.5, w * 0.5, 0.0, 
-				w * 0.5, h * -0.5, 0.0,
-				h * -0.5, w * -0.5, 0.0 ],
+				w, h, 0.0,
+				0, h, 0.0, 
+				w, 0, 0.0,
+				0, 0, 0.0 ],
 			textureCoordinates: [
 				1.0, 1.0,
 				0.0, 1.0,

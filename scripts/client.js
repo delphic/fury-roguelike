@@ -50,7 +50,8 @@ window.addEventListener('load', () => {
 
 	loadAssets(() => {
 		let w = 20, h = 10;
-		let tileMap = TileMap.create(scene, w, h, vec3.fromValues( -(0.5 * w - 0.5) * dungeonAtlas.tileSize, -(0.5 * h - 0.5) * dungeonAtlas.tileSize, -16), dungeonAtlas, "stone_floor");
+		let pos = vec3.fromValues( -(0.5 * w) * dungeonAtlas.tileSize, -(0.5 * h) * dungeonAtlas.tileSize, -16);
+		let tileMap = TileMap.create(scene, w, h, pos, dungeonAtlas, "stone_floor");
 		
 		for (let x = 0; x < w; x++) {
 			tileMap.setTile(x, 0, "stone_wall");
@@ -61,7 +62,7 @@ window.addEventListener('load', () => {
 			tileMap.setTile(0, y, "stone_wall");
 			tileMap.setTile(w-1, y, "stone_wall");
 		}
-		TextMesh.create("Hello World!", scene, cp437, vec3.fromValues(0, 0.5 * canvasHeight - 8, 0));
+		TextMesh.create("Hello World!", scene, cp437, vec3.fromValues(0, 0.5 * canvasHeight - 2 * cp437.tileSize, 0), TextMesh.Alignment.center);
 		Fury.GameLoop.init({ loop: loop });
 		Fury.GameLoop.start();
 	});	
