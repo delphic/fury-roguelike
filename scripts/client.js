@@ -1,3 +1,4 @@
+const Atlas = require('./atlas');
 const Fury = require('../fury/src/fury');
 const TextMesh = require('./textmesh');
 const GameMap = require('./gameMap');
@@ -5,7 +6,9 @@ const { vec3 } = require('../fury/src/maths');
 const furyCanvasId = "fury";
 
 let camera, scene, scaleFactor = 2;
+let uiCamera, uiScene;
 let canvasWidth = 640, canvasHeight = 360;
+let player, map;
 
 let cp437 = {
 	id: "cp437",
@@ -21,10 +24,6 @@ let dungeonAtlas = {
 	size: 4,
 	tileSize: 32,
 	path: "images/dungeon-atlas.png"
-};
-
-let loop = (elapsed) => {
-	scene.render();
 };
 
 window.addEventListener('load', () => {
@@ -46,32 +45,19 @@ window.addEventListener('load', () => {
 		ratio: canvas.width / canvas.height,
 		position: vec3.fromValues(0.0, 0.0, 1.0)
 	});
+	uiCamera = Fury.Camera.create({
+		type: Fury.Camera.Type.Orthonormal,
+		near: 0.1,
+		far: 100,
+		height: canvas.height,
+		ratio: canvas.width / canvas.height,
+		position: vec3.fromValues(0.5 * canvasWidth, -0.5 * canvasHeight, 1.0),
+		clear: false
+	});
 	scene = Fury.Scene.create({ camera: camera });
+	uiScene = Fury.Scene.create({ camera: uiCamera });
 
-	loadAssets(() => {
-		let w = 20, h = 10;
-		let pos = vec3.fromValues( -(0.5 * w) * dungeonAtlas.tileSize, -(0.5 * h) * dungeonAtlas.tileSize, -16);
-		let map = GameMap.create({
-			scene: scene,
-			width: w,
-			height: h,
-			position: pos,
-			atlas: dungeonAtlas,
-			floorTile: "stone_floor",
-			wallTile: "stone_wall"
-		});
-
-		TextMesh.create({ 
-			text: "Hello World!",
-			scene: scene,
-			atlas: cp437,
-			position: vec3.fromValues(0, 0.5 * canvasHeight - 2 * cp437.tileSize, 0),
-			alignment: TextMesh.Alignment.center 
-		});
-
-		Fury.GameLoop.init({ loop: loop });
-		Fury.GameLoop.start();
-	});	
+	loadAssets(start);	
 });
 
 let loadAssets = (callback) => {
@@ -86,23 +72,13 @@ let loadAssets = (callback) => {
 	let loadAtlas = (atlas, alpha) => {
 		assetsLoading++;
 		loadImage(atlas.path, (image) => {
-			atlas.texture = Fury.Renderer.createTexture(image, "low");
-			atlas.material = Fury.Material.create({
-				shader: Fury.Shaders.Sprite,
-				texture: atlas.texture,
-				properties: {
-					alpha: alpha,
-					offset: [ 0, 0 ],
-					scale: [ 1 / atlas.size, 1 / atlas.size ]
-				}
-			});
+			Atlas.init(atlas, image, alpha);
 			onAssetLoadComplete();
 		});
 	};
 
-	loadAtlas(cp437, true);
-	loadAtlas(dungeonAtlas);
-	// TODO: Add color uniform to sprite shader, and mix with texture - default to [1,1,1,1] if not provided
+	loadAtlas(cp437, true); // TODO: Add color uniform to sprite shader, and mix with texture - default to [1,1,1,1] if not provided - for coloured text
+	loadAtlas(dungeonAtlas, false);
 };
 
 let loadImage = (path, callback) => {
@@ -111,4 +87,81 @@ let loadImage = (path, callback) => {
 		callback(image);
 	};
 	image.src = path;
+};
+
+let start = () => {
+	let w = 20, h = 10;
+	let pos = vec3.fromValues(
+		-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
+		-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
+		-16);
+	map = GameMap.create({
+		scene: scene,
+		width: w,
+		height: h,
+		position: pos,
+		atlas: dungeonAtlas,
+		floorTile: "stone_floor",
+		wallTile: "stone_wall"
+	});
+
+	// player = scene.instantiate({ name: Utils.createTilePrefab(dungeonAtlas, "player"), position: vec3.create() });
+	// ENGINE BUG! Alpha sorting doesn't seem to work between prefabs ?
+	// set dungeonAtlas alpha to true in loadAltas, then uncomment the above and comment out the below and see how the player disappears every
+	// other tile! 
+
+	let playerMaterialConfig = Object.create(dungeonAtlas.materialConfig);
+	Atlas.setMaterialOffset(playerMaterialConfig, dungeonAtlas, "player");
+	playerMaterialConfig.properties.alpha = true;
+	player = scene.add({
+		position: vec3.create(),
+		material: Fury.Material.create(playerMaterialConfig),
+		mesh: Fury.Mesh.create(dungeonAtlas.meshConfig)
+	});
+
+	player.x = w / 2;
+	player.y = h / 2;
+	player.update = () => {
+		if (Fury.Input.keyUp("Up")) {
+			if (map.canEnterTile(player.x, player.y + 1)) {
+				player.transform.position[1] += dungeonAtlas.tileSize;
+				player.y += 1;
+			}
+		}
+		if (Fury.Input.keyUp("Down")) {
+			if (map.canEnterTile(player.x, player.y - 1)) {
+				player.transform.position[1] -= dungeonAtlas.tileSize;
+				player.y -= 1;
+			}
+		}
+		if (Fury.Input.keyUp("Left")) {
+			if (map.canEnterTile(player.x - 1, player.y)) {
+				player.transform.position[0] -= dungeonAtlas.tileSize;
+				player.x -= 1;
+			}
+		}
+		if (Fury.Input.keyUp("Right")) {
+			if (map.canEnterTile(player.x + 1, player.y)) {
+				player.transform.position[0] += dungeonAtlas.tileSize;
+				player.x += 1;
+			}
+		}
+	};
+
+	TextMesh.create({ 
+		text: "Fury Roguelike",
+		scene: uiScene,
+		atlas: cp437,
+		position: vec3.fromValues(0.5 * canvasWidth, -2 * cp437.tileSize, 0),
+		alignment: TextMesh.Alignment.center
+	});
+
+	Fury.GameLoop.init({ loop: loop });
+	Fury.GameLoop.start();
+};
+
+let loop = (elapsed) => {
+	player.update();
+	scene.render();
+	uiScene.render();
 };

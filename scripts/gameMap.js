@@ -33,6 +33,18 @@ module.exports = (function(){
 			}
 		};
 
+		gameMap.canEnterTile = (x, y) => {
+			if (x < 0 || x >= w || y < 0 || y >= h) {
+				return false;
+			}
+			switch(tiles[x + y * w]) {
+				case TileType.floor:
+					return true;
+				default: 
+					return false;
+			}
+		};
+
 		// Default Map Builder
 		tiles.fill(TileType.floor)
 		tileMap.fill(floorTile);
