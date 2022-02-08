@@ -12,8 +12,6 @@ const Primitives = require('./primitives');
 module.exports = (function(){
 	let exports = {};
 
-	let tileMapCount = 0;
-
 	let getAtlasIndex = (atlas, name) => {
 		let map = atlas.map;
 		for (let i = 0, l = map.length; i < l; i++) {
@@ -25,6 +23,8 @@ module.exports = (function(){
 	};
 
 	exports.create = (scene, w, h, pos, atlas, defaultTile) => {
+		let tileMap = {};
+
 		let quadMeshConfig = Primitives.createQuadMeshConfig(atlas.tileSize, atlas.tileSize);
 		let materialBaseConfig = {
 			shader: Fury.Shaders.Sprite,
@@ -38,25 +38,19 @@ module.exports = (function(){
 
 		let size = atlas.size, tileSize = atlas.tileSize;
 		let position = vec3.clone(pos);
-
-		let id = tileMapCount++;
-
 		let tiles = [];
-		let prefabs = {};
-
-		let tileMap = {};
 
 		let getPrefabName = (atlasIndex) => {
-			return "_tm_" + id + "_" + atlasIndex;
+			return atlas.id + "_" + atlasIndex;
 		}
 
 		let createTilePrefab = (tile) => {
-			let index = getAtlasIndex(atlas, tile); 
-			let prefabName = getPrefabName(index);
+			let atlasIndex = getAtlasIndex(atlas, tile); 
+			let prefabName = getPrefabName(atlasIndex);
 			
-			if (prefabs[prefabName] === undefined) {
-				let offsetU = (index % size) / size;
-				let offsetV = 1 - (Math.floor(index / size) + 1) / size;
+			if (Fury.Prefab.prefabs[prefabName] === undefined) {
+				let offsetU = (atlasIndex % size) / size;
+				let offsetV = 1 - (Math.floor(atlasIndex / size) + 1) / size;
 	
 				let materialConfig = Object.create(materialBaseConfig);
 				materialConfig.properties.offset = [ offsetU, offsetV ];
@@ -66,18 +60,16 @@ module.exports = (function(){
 					meshConfig: quadMeshConfig,
 					materialConfig: materialConfig
 				});
-
-				prefabs[prefabName] = tile;
 			}
 			return prefabName;
 		};
 
 		tileMap.setTile = (x, y, tile) => {
-			let tileIndex = x + y * w;
-			if (tileIndex >= 0 && tileIndex < tiles.length) {
+			let index = x + y * w;
+			if (index >= 0 && index < tiles.length) {
 				let name = createTilePrefab(tile);
-				scene.remove(tiles[tileIndex]);
-				tiles[tileIndex] = scene.instantiate({
+				if (tiles[index]) { scene.remove(tiles[index]); }
+				tiles[index] = scene.instantiate({
 					name: name,
 					position: vec3.fromValues(position[0] + x * tileSize, position[1] + y * tileSize, position[2])
 				});
@@ -96,8 +88,17 @@ module.exports = (function(){
 				}
 			}
 		};
+		tileMap.remove = () => {
+			for (let i = 0, l = tiles.length; i < l; i++) {
+				scene.remove(tiles[i]);
+			}
+		};
 
-		tileMap.fill(defaultTile);
+		if (defaultTile !== undefined) {
+			tileMap.fill(defaultTile);
+		} else {
+			tiles.length = w * h;
+		}
 
 		return tileMap;
 	};

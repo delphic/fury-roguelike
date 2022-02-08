@@ -1,5 +1,5 @@
 const Fury = require('../fury/src/fury');
-const Primitives = require('./primitives');
+const TextMesh = require('./textmesh');
 const TileMap = require('./tilemap');
 const { vec3 } = require('../fury/src/maths');
 const furyCanvasId = "fury";
@@ -8,6 +8,7 @@ let camera, scene, scaleFactor = 2;
 let canvasWidth = 640, canvasHeight = 360;
 
 let cp437 = {
+	id: "cp437",
 	map: [ undefined, "☺", "☻", "♥", "♦", "♣", "♠", "•", "◘", "○", "◙", "♂", "♀", "♪", "♫", "☼", "►", "◄", "↕", "‼", "¶", "§", "▬", "↨", "↑", "↓", "→", "←", "∟", "↔", "▲", "▼", " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "⌂", "Ç", "ü", "é", "â", "ä", "à", "å", "ç", "ê", "ë", "è", "ï", "î", "ì", "Ä", "Å", "É", "æ", "Æ", "ô", "ö", "ò", "û", "ù", "ÿ", "Ö", "Ü", "¢", "£", "¥", "₧", "ƒ", "á", "í", "ó", "ú", "ñ", "Ñ", "ª", "º", "¿", "⌐", "¬", "½", "¼", "¡", "«", "»", "░", "▒", "▓", "│", "┤", "╡", "╢", "╖", "╕", "╣", "║", "╗", "╝", "╜", "╛", "┐", "└", "┴", "┬", "├", "─", "┼", "╞", "╟", "╚", "╔", "╩", "╦", "╠", "═", "╬", "╧", "╨", "╤", "╥", "╙", "╘", "╒", "╓", "╫", "╪", "┘", "┌", "█", "▄", "▌", "▐", "▀", "α", "ß", "Γ", "π", "Σ", "σ", "µ", "τ", "Φ", "Θ", "Ω", "δ", "∞", "φ", "ε", "∩", "≡", "±", "≥", "≤", "⌠", "⌡", "÷", "≈", "°", "∙", "·", "√", "ⁿ", "²", "■", " " ],
 	size: 16,
 	tileSize: 8,
@@ -15,6 +16,7 @@ let cp437 = {
 };
 
 let dungeonAtlas = {
+	id: "dungeon-atlas",
 	map: [ "dirt", "tree", "stone_floor", "stairs_down", "stone_wall", "goblin", "goblin_boss", "short_sword", "player", "claws", "teeth", "long_sword", "red_potion", "map", "amulet", "broad_sword" ],
 	size: 4,
 	tileSize: 32,
@@ -59,42 +61,11 @@ window.addEventListener('load', () => {
 			tileMap.setTile(0, y, "stone_wall");
 			tileMap.setTile(w-1, y, "stone_wall");
 		}
-		createText("Hello World!", vec3.fromValues(0, 0.5 * canvasHeight - 8, 0));
+		TextMesh.create("Hello World!", scene, cp437, vec3.fromValues(0, 0.5 * canvasHeight - 8, 0));
 		Fury.GameLoop.init({ loop: loop });
 		Fury.GameLoop.start();
 	});	
 });
-
-let createText = (text, position) => {
-	let getCp437Index = (char) => {
-		let map = cp437.map;
-		for (let i = 0, l = map.length; i < l; i++) {
-			if (map[i] == char) {
-				return i;
-			}
-		}
-		return 0;
-	};
-
-	let size = cp437.size, tileSize = cp437.tileSize;
-	let sceneObjects = [];
-	let quadMesh = Fury.Mesh.create(Primitives.createQuadMeshConfig(tileSize, tileSize));
-	for (let i = 0, l = text.length; i < l; i++) {
-		let cp437Index = getCp437Index(text[i]);
-		let offsetX = (cp437Index % size) / size;
-		let offsetY = 1 - (Math.floor(cp437Index / size) + 1) / size;
-		
-		let material = Object.create(cp437.material);
-		material.offset = [offsetX, offsetY];
-		
-		sceneObjects.push(scene.add({
-			mesh: quadMesh,
-			material: material,
-			position: vec3.fromValues(position[0] + (i - 5) * tileSize, position[1], position[2])
-		})); 
-	}
-	return sceneObjects;
-};
 
 let loadAssets = (callback) => {
 	let assetsLoading = 0;
