@@ -11,7 +11,8 @@ module.exports = (function(){
 		"right": 2
 	};
 
-	exports.create = (text, scene, atlas, position, alignment) => {
+	exports.create = (config) => {
+		let { text, scene, atlas, position, alignment } = config;
 		let textMesh = {}; 
 
 		let offset = 0;
@@ -22,12 +23,19 @@ module.exports = (function(){
 		}
 		let pos = vec3.fromValues(position[0] - offset, position[1], position[2]);
 
-		let tileMap = TileMap.create(scene, text.length, 1, pos, atlas);
+		let tileMap = TileMap.create({
+			scene: scene,
+			width: text.length,
+			height: 1,
+			position: pos,
+			atlas: atlas 
+		});
 	
 		for (let i = 0, l = text.length; i < l; i++) {
 			tileMap.setTile(i, 0, text[i]);
 		}
 
+		textMesh.setChar = (i, char) => { tileMap.setTile(i, 0, char); };
 		textMesh.remove = tileMap.remove;
 
 		return textMesh;

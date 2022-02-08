@@ -1,6 +1,6 @@
 const Fury = require('../fury/src/fury');
 const TextMesh = require('./textmesh');
-const TileMap = require('./tilemap');
+const GameMap = require('./gameMap');
 const { vec3 } = require('../fury/src/maths');
 const furyCanvasId = "fury";
 
@@ -51,18 +51,24 @@ window.addEventListener('load', () => {
 	loadAssets(() => {
 		let w = 20, h = 10;
 		let pos = vec3.fromValues( -(0.5 * w) * dungeonAtlas.tileSize, -(0.5 * h) * dungeonAtlas.tileSize, -16);
-		let tileMap = TileMap.create(scene, w, h, pos, dungeonAtlas, "stone_floor");
-		
-		for (let x = 0; x < w; x++) {
-			tileMap.setTile(x, 0, "stone_wall");
-			tileMap.setTile(x, h-1, "stone_wall");
-		}
+		let map = GameMap.create({
+			scene: scene,
+			width: w,
+			height: h,
+			position: pos,
+			atlas: dungeonAtlas,
+			floorTile: "stone_floor",
+			wallTile: "stone_wall"
+		});
 
-		for (let y = 0; y < h; y++) {
-			tileMap.setTile(0, y, "stone_wall");
-			tileMap.setTile(w-1, y, "stone_wall");
-		}
-		TextMesh.create("Hello World!", scene, cp437, vec3.fromValues(0, 0.5 * canvasHeight - 2 * cp437.tileSize, 0), TextMesh.Alignment.center);
+		TextMesh.create({ 
+			text: "Hello World!",
+			scene: scene,
+			atlas: cp437,
+			position: vec3.fromValues(0, 0.5 * canvasHeight - 2 * cp437.tileSize, 0),
+			alignment: TextMesh.Alignment.center 
+		});
+
 		Fury.GameLoop.init({ loop: loop });
 		Fury.GameLoop.start();
 	});	

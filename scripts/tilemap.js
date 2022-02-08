@@ -22,8 +22,12 @@ module.exports = (function(){
 		return 0;
 	};
 
-	exports.create = (scene, w, h, pos, atlas, defaultTile) => {
+	exports.create = (config) => {
+		let { scene, width: w, height: h, position: pos, atlas, defaultTile } = config;
+
 		let tileMap = {};
+		tileMap.width = w;
+		tileMap.height =  h;
 
 		let quadMeshConfig = Primitives.createQuadMeshConfig(atlas.tileSize, atlas.tileSize);
 		let materialBaseConfig = {
@@ -36,7 +40,7 @@ module.exports = (function(){
 			}
 		};
 
-		let size = atlas.size, tileSize = atlas.tileSize;
+		let { size, tileSize } = atlas;
 		let position = vec3.clone(pos);
 		let tiles = [];
 
