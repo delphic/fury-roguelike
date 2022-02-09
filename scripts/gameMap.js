@@ -1,35 +1,43 @@
 const TileMap = require('./tilemap');
+const RoomsBuilder = require('./mapBuilder/rooms'); 
+const TileType = require('./tileType');
+const { floor } = require('./tileType');
 
 module.exports = (function(){
 	let exports = {};
 
-	let TileType = exports.TileType = {
-		"floor": 0,
-		"wall": 1
-	};
-
 	exports.create = (config) => {
-		let gameMap = {};
-
 		let { floorTile, wallTile, width: w, height: h } = config;
+
+		let gameMap = {};
+		gameMap.width = w;
+		gameMap.height = h;
 
 		let tiles = [];
 		tiles.length = w * h;
 		let tileMap = TileMap.create(config);
 
+		let theme = {}; // TODO: Just pass this in config
+		theme[TileType.floor] = floorTile;
+		theme[TileType.wall] = wallTile;
+
 		gameMap.setTile = (x, y, tileType) => {
-			switch (tileType) {
-				case TileType.floor:
-					tileMap.setTile(x, y, floorTile);
-					tiles[x + y * w] = tileType;
-					break;
-				case TileType.wall:
-					tileMap.setTile(x, y, wallTile);
-					tiles[x + y * w] = tileType;
-					break;
-				default:
-					console.error("Unexpected tiletype " + tileType);
-					break;
+			if (x < 0 || x >= w || y < 0 || y >= h) {
+				console.error("Set tile request outside bounds (" + x + "," + y + ")");
+			} else if (theme[tileType]) {
+				tileMap.setTile(x, y, theme[tileType]);
+				tiles[x + y * w] = tileType;
+			} else {
+				console.error("Unexpected tiletype " + tileType);
+			}
+		};
+
+		gameMap.fill = (tileType) => {
+			if (theme[tileType]) {
+				tiles.fill(tileType);
+				tileMap.fill(theme[tileType]);
+			} else {
+				console.error("Unexpected tile " + tileType);
 			}
 		};
 
@@ -45,19 +53,7 @@ module.exports = (function(){
 			}
 		};
 
-		// Default Map Builder
-		tiles.fill(TileType.floor)
-		tileMap.fill(floorTile);
-
-		for (let x = 0; x < w; x++) {
-			gameMap.setTile(x, 0, TileType.wall);
-			gameMap.setTile(x, h-1, TileType.wall);
-		}
-
-		for (let y = 0; y < h; y++) {
-			gameMap.setTile(0, y, TileType.wall);
-			gameMap.setTile(w-1, y, TileType.wall);
-		}
+		gameMap.builder = RoomsBuilder.create(gameMap, 10);
 
 		return gameMap;
 	};

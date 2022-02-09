@@ -5,9 +5,9 @@ const GameMap = require('./gameMap');
 const { vec3 } = require('../fury/src/maths');
 const furyCanvasId = "fury";
 
-let camera, scene, scaleFactor = 2;
+let camera, scene, scaleFactor = 1;
 let uiCamera, uiScene;
-let canvasWidth = 640, canvasHeight = 360;
+let canvasWidth = 2 * 640, canvasHeight = 2 * 360;
 let player, map;
 
 let cp437 = {
@@ -90,7 +90,7 @@ let loadImage = (path, callback) => {
 };
 
 let start = () => {
-	let w = 20, h = 10;
+	let w = 40, h = 20;
 	let pos = vec3.fromValues(
 		-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
 		-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
@@ -105,13 +105,18 @@ let start = () => {
 		wallTile: "stone_wall"
 	});
 
+	let playerStart = map.builder.playerStart; 
 	player = scene.instantiate({
 		name: Atlas.createTilePrefab(dungeonAtlas, "player", true),
-		position: vec3.create()
+		position: vec3.fromValues(
+			playerStart[0] * dungeonAtlas.tileSize + pos[0],
+			playerStart[1] * dungeonAtlas.tileSize + pos[1],
+			0
+		)
 	});
+	player.x = playerStart[0];
+	player.y = playerStart[1];
 
-	player.x = w / 2;
-	player.y = h / 2;
 	player.update = () => {
 		if (Fury.Input.keyUp("Up")) {
 			if (map.canEnterTile(player.x, player.y + 1)) {
