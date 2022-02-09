@@ -105,18 +105,9 @@ let start = () => {
 		wallTile: "stone_wall"
 	});
 
-	// player = scene.instantiate({ name: Utils.createTilePrefab(dungeonAtlas, "player"), position: vec3.create() });
-	// ENGINE BUG! Alpha sorting doesn't seem to work between prefabs ?
-	// set dungeonAtlas alpha to true in loadAltas, then uncomment the above and comment out the below and see how the player disappears every
-	// other tile! 
-
-	let playerMaterialConfig = Object.create(dungeonAtlas.materialConfig);
-	Atlas.setMaterialOffset(playerMaterialConfig, dungeonAtlas, "player");
-	playerMaterialConfig.properties.alpha = true;
-	player = scene.add({
-		position: vec3.create(),
-		material: Fury.Material.create(playerMaterialConfig),
-		mesh: Fury.Mesh.create(dungeonAtlas.meshConfig)
+	player = scene.instantiate({
+		name: Atlas.createTilePrefab(dungeonAtlas, "player"),
+		position: vec3.create()
 	});
 
 	player.x = w / 2;
