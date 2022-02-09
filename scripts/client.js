@@ -117,26 +117,40 @@ let start = () => {
 	player.x = playerStart[0];
 	player.y = playerStart[1];
 
-	player.update = () => {
-		if (Fury.Input.keyUp("Up")) {
+	let hasKeyInput = (key, elapsed) => {
+		let elapsedMs = elapsed * 1000;
+		let initialThreshold = 250;
+		let repeatThreshold = 150;
+		let downTime = Date.now() - Fury.Input.keyDownTime(key);
+		if (downTime < initialThreshold) {
+			return Fury.Input.keyUp(key);
+		} else if (Fury.Input.keyDown(key)) {
+			// If just went over the initial threshold || if went over a repeat threshold then move
+			return (downTime - elapsedMs < initialThreshold)
+				|| ((downTime - initialThreshold - elapsedMs) % repeatThreshold > (downTime - initialThreshold) % repeatThreshold);
+		}
+	}; 
+
+	player.update = (elapsed) => {
+		if (hasKeyInput("Up", elapsed)) {
 			if (map.canEnterTile(player.x, player.y + 1)) {
 				player.transform.position[1] += dungeonAtlas.tileSize;
 				player.y += 1;
 			}
 		}
-		if (Fury.Input.keyUp("Down")) {
+		if (hasKeyInput("Down", elapsed)) {
 			if (map.canEnterTile(player.x, player.y - 1)) {
 				player.transform.position[1] -= dungeonAtlas.tileSize;
 				player.y -= 1;
 			}
 		}
-		if (Fury.Input.keyUp("Left")) {
+		if (hasKeyInput("Left", elapsed)) {
 			if (map.canEnterTile(player.x - 1, player.y)) {
 				player.transform.position[0] -= dungeonAtlas.tileSize;
 				player.x -= 1;
 			}
 		}
-		if (Fury.Input.keyUp("Right")) {
+		if (hasKeyInput("Right", elapsed)) {
 			if (map.canEnterTile(player.x + 1, player.y)) {
 				player.transform.position[0] += dungeonAtlas.tileSize;
 				player.x += 1;
@@ -159,7 +173,7 @@ let start = () => {
 };
 
 let loop = (elapsed) => {
-	player.update();
+	player.update(elapsed);
 	scene.render();
 	uiScene.render();
 };
