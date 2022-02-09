@@ -1,6 +1,7 @@
 const Atlas = require('./atlas');
 const Fury = require('../fury/src/fury');
 const TextMesh = require('./textmesh');
+const Spawner = require('./spawner');
 const GameMap = require('./gameMap');
 const { vec3 } = require('../fury/src/maths');
 const furyCanvasId = "fury";
@@ -8,7 +9,7 @@ const furyCanvasId = "fury";
 let camera, scene, scaleFactor = 2;
 let uiCamera, uiScene;
 let canvasWidth = 640, canvasHeight = 360;
-let player, map;
+let player, map, monsters = [];
 
 let cp437 = {
 	id: "cp437",
@@ -105,60 +106,12 @@ let start = () => {
 		wallTile: "stone_wall"
 	});
 
-	let playerStart = map.builder.playerStart; 
-	player = scene.instantiate({
-		name: Atlas.createTilePrefab(dungeonAtlas, "player", true),
-		position: vec3.fromValues(
-			playerStart[0] * dungeonAtlas.tileSize + pos[0],
-			playerStart[1] * dungeonAtlas.tileSize + pos[1],
-			0
-		)
-	});
-	player.x = playerStart[0];
-	player.y = playerStart[1];
+	let spawner = Spawner.create({ atlas: dungeonAtlas, scene: scene, mapOrigin: pos });
 
-	let hasKeyInput = (key, elapsed) => {
-		let elapsedMs = elapsed * 1000;
-		let initialThreshold = 250;
-		let repeatThreshold = 150;
-		let downTime = Date.now() - Fury.Input.keyDownTime(key);
-		if (downTime < initialThreshold) {
-			return Fury.Input.keyUp(key);
-		} else if (Fury.Input.keyDown(key)) {
-			// If just went over the initial threshold || if went over a repeat threshold then move
-			return (downTime - elapsedMs < initialThreshold)
-				|| ((downTime - initialThreshold - elapsedMs) % repeatThreshold > (downTime - initialThreshold) % repeatThreshold);
-		}
-	}; 
-
-	player.update = (elapsed) => {
-		if (hasKeyInput("Up", elapsed)) {
-			if (map.canEnterTile(player.x, player.y + 1)) {
-				player.transform.position[1] += dungeonAtlas.tileSize;
-				player.y += 1;
-			}
-		}
-		if (hasKeyInput("Down", elapsed)) {
-			if (map.canEnterTile(player.x, player.y - 1)) {
-				player.transform.position[1] -= dungeonAtlas.tileSize;
-				player.y -= 1;
-			}
-		}
-		if (hasKeyInput("Left", elapsed)) {
-			if (map.canEnterTile(player.x - 1, player.y)) {
-				player.transform.position[0] -= dungeonAtlas.tileSize;
-				player.x -= 1;
-			}
-		}
-		if (hasKeyInput("Right", elapsed)) {
-			if (map.canEnterTile(player.x + 1, player.y)) {
-				player.transform.position[0] += dungeonAtlas.tileSize;
-				player.x += 1;
-			}
-		}
-		camera.position[0] = player.transform.position[0];
-		camera.position[1] = player.transform.position[1];
-	};
+	player = spawner.spawnPlayer(map.builder.playerStart);
+	for (let i = 0, l = map.builder.spawnPoints.length; i < l; i++) {
+		monsters.push(spawner.spawnMonster(map.builder.spawnPoints[i], "goblin"));
+	}
 
 	TextMesh.create({ 
 		text: "Fury Roguelike",
@@ -173,7 +126,12 @@ let start = () => {
 };
 
 let loop = (elapsed) => {
-	player.update(elapsed);
+
+	player.update(elapsed, map, monsters);
+	
+	camera.position[0] = player.position[0];
+	camera.position[1] = player.position[1];
+
 	scene.render();
 	uiScene.render();
 };

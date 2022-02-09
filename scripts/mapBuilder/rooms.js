@@ -8,7 +8,8 @@ module.exports =  (function(){
 	exports.create = (gameMap, numRooms) => {
 		let builder = {
 			rooms: [],
-			playerStart: vec2.create()
+			playerStart: vec2.create(),
+			spawnPoints: []
 		};
 
 		gameMap.fill(TileType.wall);
@@ -82,7 +83,14 @@ module.exports =  (function(){
 			}
 		}
 
+		// Add Spawn Points
 		vec2.floor(builder.playerStart, rooms[0].center);
+
+		for (let i = 1, l = rooms.length; i < l; i++) {
+			let pos = vec2.create();
+			vec2.floor(pos, rooms[i].center);
+			builder.spawnPoints.push(pos);
+		}
 
 		return builder;
 	};

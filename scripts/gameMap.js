@@ -7,11 +7,12 @@ module.exports = (function(){
 	let exports = {};
 
 	exports.create = (config) => {
-		let { floorTile, wallTile, width: w, height: h } = config;
+		let { floorTile, wallTile, width: w, height: h, position } = config;
 
 		let gameMap = {};
 		gameMap.width = w;
 		gameMap.height = h;
+		gameMap.origin = position;
 
 		let tiles = [];
 		tiles.length = w * h;
