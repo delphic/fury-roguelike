@@ -102,8 +102,10 @@ let start = () => {
 		height: h,
 		position: pos,
 		atlas: dungeonAtlas,
-		floorTile: "stone_floor",
-		wallTile: "stone_wall"
+		theme: {
+			0: "stone_floor",
+			1: "stone_wall"
+		}
 	});
 
 	let spawner = Spawner.create({ atlas: dungeonAtlas, scene: scene, mapOrigin: pos });

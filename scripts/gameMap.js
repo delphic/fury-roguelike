@@ -1,13 +1,12 @@
 const TileMap = require('./tilemap');
 const RoomsBuilder = require('./mapBuilder/rooms'); 
 const TileType = require('./tileType');
-const { floor } = require('./tileType');
 
 module.exports = (function(){
 	let exports = {};
 
 	exports.create = (config) => {
-		let { floorTile, wallTile, width: w, height: h, position } = config;
+		let { width: w, height: h, position, theme } = config;
 
 		let gameMap = {};
 		gameMap.width = w;
@@ -17,10 +16,6 @@ module.exports = (function(){
 		let tiles = [];
 		tiles.length = w * h;
 		let tileMap = TileMap.create(config);
-
-		let theme = {}; // TODO: Just pass this in config
-		theme[TileType.floor] = floorTile;
-		theme[TileType.wall] = wallTile;
 
 		gameMap.setTile = (x, y, tileType) => {
 			if (x < 0 || x >= w || y < 0 || y >= h) {
