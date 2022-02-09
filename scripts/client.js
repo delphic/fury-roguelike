@@ -106,7 +106,7 @@ let start = () => {
 	});
 
 	player = scene.instantiate({
-		name: Atlas.createTilePrefab(dungeonAtlas, "player"),
+		name: Atlas.createTilePrefab(dungeonAtlas, "player", true),
 		position: vec3.create()
 	});
 

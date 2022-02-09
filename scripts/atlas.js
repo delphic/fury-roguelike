@@ -14,8 +14,12 @@ module.exports = (function(){
 		return 0;
 	};
 
-	let getPrefabName = (atlas, atlasIndex) => {
-		return atlas.id + "_" + atlasIndex;
+	let getPrefabName = (atlas, atlasIndex, alpha) => {
+		let name = atlas.id + "_" + atlasIndex;
+		if (alpha !== undefined && alpha != atlas.materialConfig.properties.alpha) {
+			name += "_" + (alpha ? "a1" : "a0");
+		}
+		return name;
 	}
 
 	let setMaterialOffset = (config, atlasIndex, size) => {
@@ -30,13 +34,16 @@ module.exports = (function(){
 		setMaterialOffset(config, atlasIndex, size);
 	};
 
-	exports.createTilePrefab = (atlas, tile) => {
+	exports.createTilePrefab = (atlas, tile, alpha) => {
 		let size = atlas.size;
 		let atlasIndex = getAtlasIndex(atlas, tile);
-		let prefabName = getPrefabName(atlas, atlasIndex);
+		let prefabName = getPrefabName(atlas, atlasIndex, alpha);
 		
 		if (Fury.Prefab.prefabs[prefabName] === undefined) {
 			let materialConfig = Object.create(atlas.materialConfig);
+			if (alpha !== undefined) {
+				materialConfig.properties.alpha = alpha;
+			}
 			setMaterialOffset(materialConfig, atlasIndex, size);
 
 			Fury.Prefab.create({
