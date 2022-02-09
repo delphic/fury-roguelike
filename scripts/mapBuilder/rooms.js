@@ -15,18 +15,19 @@ module.exports =  (function(){
 
 		// Add Rooms
 		let rooms = builder.rooms;
+		let maxRoomSize = 5;
 		let failCount = 0;
 		while (builder.rooms.length < numRooms && failCount < 100) {
 			// Some 2D Bounds / Rect functions would be nice
 			// Also Fury.Random should be a thing
 			let min = [ 
-				1 + Math.floor((gameMap.width - 5) * Math.random()),
-				1 + Math.floor((gameMap.height - 5) * Math.random()),
+				1 + Math.floor((gameMap.width - maxRoomSize - 1) * Math.random()),
+				1 + Math.floor((gameMap.height - maxRoomSize - 1) * Math.random()),
 				0
 			];
 			let max = [
-				min[0] + 2 + Math.floor((5 - 2) * Math.random()),
-				min[1] + 2 + Math.floor((5 - 2) * Math.random()),
+				min[0] + 2 + Math.floor((maxRoomSize - 2) * Math.random()),
+				min[1] + 2 + Math.floor((maxRoomSize - 2) * Math.random()),
 				1
 			];
 			let room = Bounds.create({ min: min, max: max });

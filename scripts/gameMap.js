@@ -53,7 +53,7 @@ module.exports = (function(){
 			}
 		};
 
-		gameMap.builder = RoomsBuilder.create(gameMap, 10);
+		gameMap.builder = RoomsBuilder.create(gameMap, 20);
 
 		return gameMap;
 	};

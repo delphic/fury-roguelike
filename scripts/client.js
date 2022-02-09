@@ -5,9 +5,9 @@ const GameMap = require('./gameMap');
 const { vec3 } = require('../fury/src/maths');
 const furyCanvasId = "fury";
 
-let camera, scene, scaleFactor = 1;
+let camera, scene, scaleFactor = 2;
 let uiCamera, uiScene;
-let canvasWidth = 2 * 640, canvasHeight = 2 * 360;
+let canvasWidth = 640, canvasHeight = 360;
 let player, map;
 
 let cp437 = {
@@ -142,6 +142,8 @@ let start = () => {
 				player.x += 1;
 			}
 		}
+		camera.position[0] = player.transform.position[0];
+		camera.position[1] = player.transform.position[1];
 	};
 
 	TextMesh.create({ 
