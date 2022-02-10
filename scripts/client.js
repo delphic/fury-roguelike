@@ -114,6 +114,7 @@ let start = () => {
 	for (let i = 0, l = map.builder.spawnPoints.length; i < l; i++) {
 		monsters.push(spawner.spawnMonster(map.builder.spawnPoints[i], "goblin"));
 	}
+	spawner.spawnItem(map.builder.goal, "amulet");
 
 	TextMesh.create({ 
 		text: "Fury Roguelike",

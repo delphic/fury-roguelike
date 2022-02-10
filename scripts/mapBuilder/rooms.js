@@ -9,7 +9,8 @@ module.exports =  (function(){
 		let builder = {
 			rooms: [],
 			playerStart: vec2.create(),
-			spawnPoints: []
+			spawnPoints: [],
+			goal: vec2.create()
 		};
 
 		gameMap.fill(TileType.wall);
@@ -91,6 +92,9 @@ module.exports =  (function(){
 			vec2.floor(pos, rooms[i].center);
 			builder.spawnPoints.push(pos);
 		}
+
+		gameMap.playerNav.calculate(builder.playerStart[0], builder.playerStart[1], 1024);
+		gameMap.playerNav.findMaxValuePos(builder.goal);
 
 		return builder;
 	};

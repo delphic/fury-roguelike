@@ -10,7 +10,7 @@ module.exports = (function(){
 		
 		let spawner = {};
 
-		spawnEntity = (pos, name) => {
+		let spawnEntity = (pos, name) => {
 			let position = vec3.fromValues(
 				pos[0] * atlas.tileSize + mapOrigin[0],
 				pos[1] * atlas.tileSize + mapOrigin[1],
@@ -76,6 +76,10 @@ module.exports = (function(){
 			};
 
 			return player;
+		};
+
+		spawner.spawnItem = (pos, name) => {
+			return spawnEntity(pos, name);
 		};
 
 		spawner.spawnMonster = (pos, name) => {

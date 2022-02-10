@@ -1,4 +1,5 @@
 const TileMap = require('./tilemap');
+const FlowMap = require('./flowMap');
 const RoomsBuilder = require('./mapBuilder/rooms'); 
 const TileType = require('./tileType');
 
@@ -48,6 +49,12 @@ module.exports = (function(){
 					return false;
 			}
 		};
+
+		let flowMapConfig = { width: w, height: h, gameMap: gameMap };
+		gameMap.createFlowMap = () => {
+			return FlowMap.create(flowMapConfig);
+		};
+		gameMap.playerNav = FlowMap.create(flowMapConfig);
 
 		gameMap.builder = RoomsBuilder.create(gameMap, 20);
 
