@@ -47,7 +47,9 @@ module.exports = (function(){
 				}
 			}; 
 
-			player.update = (elapsed, map, monsters) => {
+			player.inventory = [];
+
+			player.update = (elapsed, map, monsters, items) => {
 				let targetX = player.x; targetY = player.y;
 				if (hasKeyInput("Up", elapsed)) {
 					targetY += 1;
@@ -71,6 +73,16 @@ module.exports = (function(){
 						player.y = targetY;
 						player.position[0] = player.x * atlas.tileSize + map.origin[0]
 						player.position[1] = player.y * atlas.tileSize + map.origin[1];
+
+						let itemIdx = items.findIndex(i => i.x == player.x && i.y == player.y);
+						if (itemIdx >= 0) {
+							let item = items.splice(itemIdx, 1)[0];
+							player.inventory.push(item);
+							item.sceneObject.active = false;
+							if (item.onPickup) {
+								item.onPickup();
+							}
+						}
 					}
 				}
 			};
@@ -78,8 +90,10 @@ module.exports = (function(){
 			return player;
 		};
 
-		spawner.spawnItem = (pos, name) => {
-			return spawnEntity(pos, name);
+		spawner.spawnItem = (pos, name, onPickup) => {
+			let entity = spawnEntity(pos, name);
+			entity.onPickup = onPickup;
+			return entity;
 		};
 
 		spawner.spawnMonster = (pos, name) => {

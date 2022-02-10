@@ -9,7 +9,7 @@ const furyCanvasId = "fury";
 let camera, scene, scaleFactor = 2;
 let uiCamera, uiScene;
 let canvasWidth = 640, canvasHeight = 360;
-let player, map, monsters = [];
+let player, map, monsters = [], items = [];
 
 let cp437 = {
 	id: "cp437",
@@ -114,7 +114,17 @@ let start = () => {
 	for (let i = 0, l = map.builder.spawnPoints.length; i < l; i++) {
 		monsters.push(spawner.spawnMonster(map.builder.spawnPoints[i], "goblin"));
 	}
-	spawner.spawnItem(map.builder.goal, "amulet");
+	items.push(spawner.spawnItem(map.builder.goal, "amulet", () => {
+		TextMesh.create({ 
+			text: "You Win!",
+			scene: uiScene,
+			atlas: cp437,
+			position: vec3.fromValues(0.5 * canvasWidth, -0.5 * canvasHeight, 0),
+			alignment: TextMesh.Alignment.center
+		});
+		Fury.GameLoop.stop();
+		window.setTimeout(() => { window.location = window.location }, 1000);
+	}));
 
 	TextMesh.create({ 
 		text: "Fury Roguelike",
@@ -130,7 +140,7 @@ let start = () => {
 
 let loop = (elapsed) => {
 
-	player.update(elapsed, map, monsters);
+	player.update(elapsed, map, monsters, items);
 	
 	camera.position[0] = player.position[0];
 	camera.position[1] = player.position[1];
