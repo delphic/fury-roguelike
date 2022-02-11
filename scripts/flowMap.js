@@ -5,7 +5,7 @@ module.exports = (function(){
 		let { width, height, gameMap } = config;
 
 		let flowMap = {};
-		flowMap.evaluatedTiles =  [];
+		flowMap.navigableTiles =  [];
 		flowMap.values = [];
 
 		let stack = [];
@@ -19,13 +19,13 @@ module.exports = (function(){
 		};
 
 		flowMap.calculate = (x, y, limit) => {
-			stack.length = consideredTiles.length = flowMap.evaluatedTiles.length = 0;
+			stack.length = consideredTiles.length = flowMap.navigableTiles.length = 0;
 			let i = 0;
 			stack.tryAdd(x, y);
 			while (i < stack.length && i < limit) {
 				x = Math.floor(stack[i] % width);
 				y = Math.floor(stack[i] / width);
-				flowMap.evaluatedTiles[stack[i]] = true;
+				flowMap.navigableTiles[stack[i]] = true;
 				flowMap.values[stack[i]] = i;
 				stack.tryAdd(x - 1, y);
 				stack.tryAdd(x, y + 1);
@@ -36,7 +36,7 @@ module.exports = (function(){
 			return flowMap;
 		};
 
-		flowMap.getEvalutedTileIndexSet = (out) => {
+		flowMap.getNavigableTileIndexSet = (out) => {
 			out.length = 0;
 			for (let i = 0, l = evaluatedTiles.length; i < l; i++) {
 				if (evaluatedTiles[i] !== undefined) {
