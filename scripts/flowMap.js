@@ -8,29 +8,44 @@ module.exports = (function(){
 		flowMap.navigableTiles =  [];
 		flowMap.values = [];
 
-		let stack = [];
+		let queue = [];
+		let queueDistances = [];
 		let consideredTiles = [];
-		stack.tryAdd = (x, y) => {
+
+		let clear = () => {
+			queue.length = queueDistances.length = consideredTiles.length = flowMap.navigableTiles.length = 0;
+		};
+
+		queue.tryAdd = (x, y, distance) => {
 			let index = x + width * y;
 			if (x >= 0 && x < width && y >= 0 && y < height && !consideredTiles[index] && gameMap.canEnterTile(x, y)) {
-				stack.push(index);
+				queue.push(index);
+				queueDistances.push(distance);
 				consideredTiles[index] = true;
 			}
 		};
 
+		flowMap.getValue = (x, y, fallback) => {
+			if (x >= 0 && y >= 0 && x < width && y < height) {
+				return flowMap.values[x + width * y];
+			}
+			return fallback;
+		};
+
 		flowMap.calculate = (x, y, limit) => {
-			stack.length = consideredTiles.length = flowMap.navigableTiles.length = 0;
-			let i = 0;
-			stack.tryAdd(x, y);
-			while (i < stack.length && i < limit) {
-				x = Math.floor(stack[i] % width);
-				y = Math.floor(stack[i] / width);
-				flowMap.navigableTiles[stack[i]] = true;
-				flowMap.values[stack[i]] = i;
-				stack.tryAdd(x - 1, y);
-				stack.tryAdd(x, y + 1);
-				stack.tryAdd(x + 1, y);
-				stack.tryAdd(x, y - 1);
+			clear();
+			let i = 0, distance = 0;
+			queue.tryAdd(x, y, 0);
+			while (i < queue.length && distance < limit) {
+				distance = queueDistances[i];
+				x = Math.floor(queue[i] % width);
+				y = Math.floor(queue[i] / width);
+				flowMap.navigableTiles[queue[i]] = true;
+				flowMap.values[queue[i]] = distance;
+				queue.tryAdd(x - 1, y, distance + 1);
+				queue.tryAdd(x, y + 1, distance + 1);
+				queue.tryAdd(x + 1, y, distance + 1);
+				queue.tryAdd(x, y - 1, distance + 1);
 				i++;
 			}
 			return flowMap;
@@ -38,8 +53,8 @@ module.exports = (function(){
 
 		flowMap.getNavigableTileIndexSet = (out) => {
 			out.length = 0;
-			for (let i = 0, l = evaluatedTiles.length; i < l; i++) {
-				if (evaluatedTiles[i] !== undefined) {
+			for (let i = 0, l = flowMap.navigableTiles.length; i < l; i++) {
+				if (flowMap.navigableTiles[i] !== undefined) {
 					out.push(i);
 				}
 			}
