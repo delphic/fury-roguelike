@@ -18,7 +18,7 @@ module.exports = (function(){
 	};
 
 	// temp variables
-	let playerIntent = vec2.create();
+	let intentPos = vec2.create();
 
 	let createCameras = () => {
 		// Main camera
@@ -57,7 +57,6 @@ module.exports = (function(){
 		createScenes();
 
 		let w = 40, h = 20;
-
 		let mapOrigin = vec3.fromValues(
 			-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
 			-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
@@ -106,12 +105,58 @@ module.exports = (function(){
 		});
 	};
 
+	let navigableTiles = [];
+
 	exports.update = (elapsed) => {
-		if (world.player.checkForInput(elapsed, playerIntent)) {
-			world.player.takeTurn(world, playerIntent);
+		// Wait for input
+		if (world.player.checkForInput(elapsed, intentPos)) {
+			// Player turn!
+			world.player.takeTurn(world, intentPos);
 			
 			camera.position[0] = world.player.position[0];
 			camera.position[1] = world.player.position[1];
+
+			let nav = world.map.playerNav.calculate(world.player.x, world.player.y, 1024);
+
+			nav.getNavigableTileIndexSet(navigableTiles);
+
+			// Monster turn!
+			let takenIndices = [];
+			for (let i = 0, l = world.monsters.length; i < l; i++) {
+				let monster = world.monsters[i];
+				takenIndices[monster.x + world.map.width * monster.y] = true;
+			}
+			for (let i = 0, l = world.monsters.length; i < l; i++) {
+				let monster = world.monsters[i];
+				let x = px = monster.x, y = py = monster.y;
+				let navValue = nav.getValue(x, y, 0);
+				if (navValue > 1 && navValue < 7) {
+					// Move towards player until within 1 square
+					if (nav.getValue(x+1, y, navValue) < navValue) {
+						x += 1;
+					} else if (nav.getValue(x-1, y, navValue) < navValue) {
+						x -= 1;
+					} else if (nav.getValue(x, y+1, navValue) < navValue) {
+						y += 1;
+					} else if (nav.getValue(x, y-1, navValue) < navValue) {
+						y -= 1;
+					}
+
+					// Note: Monsters that move later can block monsters moving earlier
+					// Could if there's a monster on the square you want, resolve that monsters turn first
+					// and if still block check the other directions - still this doesn't happen much as 
+					// monsters are spawned in ~ order of distance to the player
+					if ((px != x || py != y) && !takenIndices[x + world.map.width * y]) {
+						takenIndices[px + world.map.width * py] = false;
+						takenIndices[x + world.map.width * y] = true;
+						monster.position[0] = x * dungeonAtlas.tileSize + world.map.origin[0];
+						monster.position[1] = y * dungeonAtlas.tileSize + world.map.origin[1];
+						monster.x = x;
+						monster.y = y;
+					}
+				}
+
+			}
 		}
 
 		scene.render();
