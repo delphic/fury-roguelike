@@ -29,8 +29,11 @@ module.exports = (function(){
 			return entity;
 		}
 
-		spawner.spawnPlayer = (pos) => {
-			return Player.create(spawnEntity(pos, "player"), scene, atlas.tileSize);
+		spawner.spawnPlayer = (pos, health) => {
+			let player = Player.create(spawnEntity(pos, "player"), scene, atlas.tileSize);
+			player.health = health;
+			player.healthMax = health;
+			return player;
 		};
 
 		spawner.spawnItem = (pos, name, onPickup) => {
@@ -39,8 +42,11 @@ module.exports = (function(){
 			return entity;
 		};
 
-		spawner.spawnMonster = (pos, name) => {
-			return spawnEntity(pos, name);
+		spawner.spawnMonster = (pos, name, health) => {
+			let monster = spawnEntity(pos, name);
+			monster.health = health;
+			monster.healthMax = health;
+			return monster;
 		};
 
 		return spawner;

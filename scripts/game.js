@@ -9,6 +9,7 @@ module.exports = (function(){
 
 	let canvas;
 	let scene, uiScene, camera, uiCamera;
+	let hud = { healthBar: null };
 	let uiAtlas, dungeonAtlas;
 	let world = {
 		player: null,
@@ -76,33 +77,50 @@ module.exports = (function(){
 	
 		let spawner = Spawner.create({ atlas: dungeonAtlas, scene: scene, mapOrigin: mapOrigin });
 	
-		world.player = spawner.spawnPlayer(builder.playerStart);
+		world.player = spawner.spawnPlayer(builder.playerStart, 3);
 		camera.position[0] = world.player.position[0];
 		camera.position[1] = world.player.position[1];
 
 		for (let i = 0, l = builder.spawnPoints.length; i < l; i++) {
-			world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], "goblin"));
+			world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], "goblin", 1));
 		}
 
 		world.items.push(spawner.spawnItem(builder.goal, "amulet", () => {
-			TextMesh.create({ 
-				text: "You Win!",
-				scene: uiScene,
-				atlas: uiAtlas,
-				position: vec3.fromValues(0.5 * canvas.width, 0.5 * canvas.height, 0),
-				alignment: TextMesh.Alignment.center
-			});
+			createEndGameMessage("You Win!");
 			Fury.GameLoop.stop();
 			window.setTimeout(() => { window.location = window.location }, 1000);
 		}));
-	
-		TextMesh.create({ 
-			text: "Fury Roguelike",
+
+		updateHealthBar(world.player);
+	};
+
+	let updateHealthBar = (player) => {
+		if (hud.healthBar) {
+			hud.healthBar.remove();
+		}
+		let healthString = "Health:";
+		for (let i = 0; i < player.health; i++) {
+			healthString += " ♥";
+		}
+		hud.healthBar = TextMesh.create({
+			text: healthString,
 			scene: uiScene,
 			atlas: uiAtlas,
-			position: vec3.fromValues(0.5 * canvas.width, canvas.height - 2 * uiAtlas.tileSize, 0),
+			position: vec3.fromValues(uiAtlas.tileSize, canvas.height - 2 * uiAtlas.tileSize, 0),
+			alignment: TextMesh.Alignment.left
+		});
+	};
+
+	let createEndGameMessage = (text) => {
+		TextMesh.create({ 
+			text: text,
+			scene: uiScene,
+			atlas: uiAtlas,
+			position: vec3.fromValues(0.5 * canvas.width, 0.5 * canvas.height, 0),
 			alignment: TextMesh.Alignment.center
 		});
+		Fury.GameLoop.stop();
+		window.setTimeout(() => { window.location = window.location }, 1000);
 	};
 
 	let navigableTiles = [];
@@ -129,16 +147,17 @@ module.exports = (function(){
 			for (let i = 0, l = world.monsters.length; i < l; i++) {
 				let monster = world.monsters[i];
 				let x = px = monster.x, y = py = monster.y;
-				let navValue = nav.getValue(x, y, 0);
-				if (navValue > 1 && navValue < 7) {
+				let distanceToPlayer = nav.getValue(x, y, 0);
+				if (distanceToPlayer > 1 && distanceToPlayer < 7) {
+					// TODO: Check Line of Sight
 					// Move towards player until within 1 square
-					if (nav.getValue(x+1, y, navValue) < navValue) {
+					if (nav.getValue(x+1, y, distanceToPlayer) < distanceToPlayer) {
 						x += 1;
-					} else if (nav.getValue(x-1, y, navValue) < navValue) {
+					} else if (nav.getValue(x-1, y, distanceToPlayer) < distanceToPlayer) {
 						x -= 1;
-					} else if (nav.getValue(x, y+1, navValue) < navValue) {
+					} else if (nav.getValue(x, y+1, distanceToPlayer) < distanceToPlayer) {
 						y += 1;
-					} else if (nav.getValue(x, y-1, navValue) < navValue) {
+					} else if (nav.getValue(x, y-1, distanceToPlayer) < distanceToPlayer) {
 						y -= 1;
 					}
 
@@ -154,8 +173,14 @@ module.exports = (function(){
 						monster.x = x;
 						monster.y = y;
 					}
+				} else if (distanceToPlayer == 1) {
+					world.player.health -= 1;
 				}
+			}
+			updateHealthBar(world.player);
 
+			if (world.player.health <= 0) {
+				createEndGameMessage("You Lose!");
 			}
 		}
 

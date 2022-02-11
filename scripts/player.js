@@ -55,7 +55,12 @@ module.exports = (function(){
 			if (map.canEnterTile(targetX, targetY)) {
 				let monsterIdx = monsters.findIndex(m => m.x == targetX && m.y == targetY);
 				if (monsterIdx >= 0) {
-					scene.remove(monsters.splice(monsterIdx, 1)[0].sceneObject);
+					let monster = monsters[monsterIdx];
+					monster.health -= 1;
+					if (monster.health <= 0) {
+						monsters.splice(monsterIdx, 1);
+						scene.remove(monster.sceneObject);
+					}
 				} else {
 					player.x = targetX;
 					player.y = targetY;
