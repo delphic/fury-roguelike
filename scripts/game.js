@@ -2,7 +2,7 @@ const Fury = require('../fury/src/fury');
 const TextMesh = require('./textmesh');
 const Spawner = require('./spawner');
 const GameMap = require('./gameMap');
-const { vec3 } = Fury.Maths;
+const { vec2, vec3 } = Fury.Maths;
 
 module.exports = (function(){
 	let exports = {};
@@ -17,11 +17,8 @@ module.exports = (function(){
 		items: []
 	};
 
-	let State = {
-		WaitingForInput: "waiting_for_input",
-		PlayerTurn: "player_turn",
-		MonsterTurn: "monster_turn",
-	};
+	// temp variables
+	let playerIntent = vec2.create();
 
 	let createCameras = () => {
 		// Main camera
@@ -81,9 +78,13 @@ module.exports = (function(){
 		let spawner = Spawner.create({ atlas: dungeonAtlas, scene: scene, mapOrigin: mapOrigin });
 	
 		world.player = spawner.spawnPlayer(builder.playerStart);
+		camera.position[0] = world.player.position[0];
+		camera.position[1] = world.player.position[1];
+
 		for (let i = 0, l = builder.spawnPoints.length; i < l; i++) {
 			world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], "goblin"));
 		}
+
 		world.items.push(spawner.spawnItem(builder.goal, "amulet", () => {
 			TextMesh.create({ 
 				text: "You Win!",
@@ -106,10 +107,12 @@ module.exports = (function(){
 	};
 
 	exports.update = (elapsed) => {
-		world.player.update(elapsed, world);
-	
-		camera.position[0] = world.player.position[0];
-		camera.position[1] = world.player.position[1];
+		if (world.player.checkForInput(elapsed, playerIntent)) {
+			world.player.takeTurn(world, playerIntent);
+			
+			camera.position[0] = world.player.position[0];
+			camera.position[1] = world.player.position[1];
+		}
 
 		scene.render();
 		uiScene.render();
