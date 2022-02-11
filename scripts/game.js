@@ -10,7 +10,18 @@ module.exports = (function(){
 	let canvas;
 	let scene, uiScene, camera, uiCamera;
 	let uiAtlas, dungeonAtlas;
-	let player, map, monsters = [], items = [];
+	let world = {
+		player: null,
+		map: null,
+		monsters: [],
+		items: []
+	};
+
+	let State = {
+		WaitingForInput: "waiting_for_input",
+		PlayerTurn: "player_turn",
+		MonsterTurn: "monster_turn",
+	};
 
 	let createCameras = () => {
 		// Main camera
@@ -50,29 +61,30 @@ module.exports = (function(){
 
 		let w = 40, h = 20;
 
-		let pos = vec3.fromValues(
+		let mapOrigin = vec3.fromValues(
 			-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
 			-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
 			-16);
-		map = GameMap.create({
+		world.map = GameMap.create({
 			scene: scene,
 			width: w,
 			height: h,
-			position: pos,
+			position: mapOrigin,
 			atlas: dungeonAtlas,
 			theme: {
 				0: "stone_floor",
 				1: "stone_wall"
 			}
 		});
+		let builder = world.map.builder;
 	
-		let spawner = Spawner.create({ atlas: dungeonAtlas, scene: scene, mapOrigin: pos });
+		let spawner = Spawner.create({ atlas: dungeonAtlas, scene: scene, mapOrigin: mapOrigin });
 	
-		player = spawner.spawnPlayer(map.builder.playerStart);
-		for (let i = 0, l = map.builder.spawnPoints.length; i < l; i++) {
-			monsters.push(spawner.spawnMonster(map.builder.spawnPoints[i], "goblin"));
+		world.player = spawner.spawnPlayer(builder.playerStart);
+		for (let i = 0, l = builder.spawnPoints.length; i < l; i++) {
+			world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], "goblin"));
 		}
-		items.push(spawner.spawnItem(map.builder.goal, "amulet", () => {
+		world.items.push(spawner.spawnItem(builder.goal, "amulet", () => {
 			TextMesh.create({ 
 				text: "You Win!",
 				scene: uiScene,
@@ -94,10 +106,10 @@ module.exports = (function(){
 	};
 
 	exports.update = (elapsed) => {
-		player.update(elapsed, map, monsters, items);
+		world.player.update(elapsed, world);
 	
-		camera.position[0] = player.position[0];
-		camera.position[1] = player.position[1];
+		camera.position[0] = world.player.position[0];
+		camera.position[1] = world.player.position[1];
 
 		scene.render();
 		uiScene.render();

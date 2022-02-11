@@ -49,7 +49,8 @@ module.exports = (function(){
 
 			player.inventory = [];
 
-			player.update = (elapsed, map, monsters, items) => {
+			player.update = (elapsed, world) => {
+				let { map, player, monsters, items } = world;
 				let targetX = player.x; targetY = player.y;
 				if (hasKeyInput("Up", elapsed)) {
 					targetY += 1;
