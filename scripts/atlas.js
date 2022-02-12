@@ -19,7 +19,7 @@ module.exports = (function(){
 		if (alpha !== undefined && alpha != atlas.materialConfig.properties.alpha) {
 			name += "_" + (alpha ? "a1" : "a0");
 		}
-		if (color !== undefined && (color[0] != 1 || color[1] != 1 || color[2] != 1 || color[3] != 3)) {
+		if (color !== undefined && (color[0] != 1 || color[1] != 1 || color[2] != 1 || color[3] != 1)) {
 			name += "_" + color[0] + "_" + color[1] + "_" + color[2] + "_" + color[3];
 		}
 		return name;
@@ -50,6 +50,9 @@ module.exports = (function(){
 			}
 			if (color !== undefined) {
 				materialConfig.properties.color = color;
+			} else {
+				 // This shouldn't be necessary, however it is
+				materialConfig.properties.color = Fury.Maths.vec4.fromValues(1,1,1,1);
 			}
 			setMaterialOffset(materialConfig, atlasIndex, size);
 

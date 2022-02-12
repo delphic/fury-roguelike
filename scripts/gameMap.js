@@ -19,6 +19,13 @@ module.exports = (function(){
 		tiles.length = w * h;
 		let tileMap = TileMap.create(config);
 
+		// Create tilemap for grey tinted seen tiles with small offset 
+		let tmpPosition = position;
+		config.position = Maths.vec3.clone(tmpPosition);
+		config.position[2] -= 1; 
+		let grey = Maths.vec4.fromValues(0.5, 0.5, 0.5, 1);
+		let seenTileMap = TileMap.create(config);
+
 		gameMap.setTile = (x, y, tileType) => {
 			if (x < 0 || x >= w || y < 0 || y >= h) {
 				console.error("Set tile request outside bounds (" + x + "," + y + ")");
@@ -57,6 +64,10 @@ module.exports = (function(){
 
 		gameMap.setTileActive = (x, y, active) => {
 			tileMap.setTileActive(x, y, active);
+			if (active) {
+				// Permanently see tiles
+				seenTileMap.setTileActive(x, y, true);
+			}
 		};
 
 		gameMap.hasLineOfSight = (x0, y0, x1, y1) => {
@@ -146,6 +157,14 @@ module.exports = (function(){
 		gameMap.playerNav = FlowMap.create(flowMapConfig);
 
 		gameMap.builder = RoomsBuilder.create(gameMap, 20);
+
+		// Fill seen tilemap, but disabled by default
+		for (let x = 0; x < w; x++) {
+			for (let y = 0; y < h; y++) {
+				seenTileMap.setTile(x, y, theme[tiles[x + y * w]], grey);
+				seenTileMap.setTileActive(x, y, false);
+			}
+		}
 
 		return gameMap;
 	};

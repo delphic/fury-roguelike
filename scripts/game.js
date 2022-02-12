@@ -107,7 +107,7 @@ module.exports = (function(){
 			}
 		}
 
-		// Build monster and item by index arrays - should probalby have this on world.
+		// Build monster and item by index arrays - should probably have this on world.
 		// and could hide the indexing
 		monstersByIndex.length = 0;
 		for (let i = 0, l = world.monsters.length; i < l; i++) {
@@ -120,7 +120,7 @@ module.exports = (function(){
 		for (let i = 0, l = world.items.length; i < l; i++) {
 			let item = world.items[i];
 			item.sceneObject.active = false;
-			itemsByIndex[item.x + world.map.width + item.y] = item;
+			itemsByIndex[item.x + world.map.width * item.y] = item;
 		}
 
 		let range = 8;
@@ -206,8 +206,6 @@ module.exports = (function(){
 
 			nav.getNavigableTileIndexSet(navigableTiles);
 
-			updateFogOfWar(world);
-
 			// Monster turn!
 			let takenIndices = [];
 			for (let i = 0, l = world.monsters.length; i < l; i++) {
@@ -248,6 +246,8 @@ module.exports = (function(){
 					world.player.health -= 1;
 				}
 			}
+
+			updateFogOfWar(world);
 			updateHealthBar(world.player);
 
 			if (world.player.health <= 0) {
