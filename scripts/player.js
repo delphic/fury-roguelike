@@ -43,6 +43,9 @@ module.exports = (function(){
 				result = true;
 				targetX += 1;
 			}
+			if (Fury.Input.keyUp("Space")) {
+				result = true;
+			}
 			targetPos[0] = targetX;
 			targetPos[1] = targetY;
 			return result;
