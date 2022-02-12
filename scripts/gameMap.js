@@ -147,7 +147,8 @@ module.exports = (function(){
 					y = yAtNextIntX;
 				}
 			}
-			return tileX == x1 && tileY == y1 && (!horiztonalBlocked || !verticalBlocked);
+			let isTileNavigable = gameMap.canEnterTile(tileX, tileY); // Show walls in corners
+			return tileX == x1 && tileY == y1 && (!horiztonalBlocked || !verticalBlocked || !isTileNavigable);
 		};
 
 		let flowMapConfig = { width: w, height: h, gameMap: gameMap };
