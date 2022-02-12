@@ -22,10 +22,10 @@ module.exports = (function(){
 		let position = vec3.clone(pos);
 		let tiles = [];
 
-		tileMap.setTile = (x, y, tile) => {
+		tileMap.setTile = (x, y, tile, color) => {
 			let index = x + y * w;
 			if (index >= 0 && index < tiles.length) {
-				let name = Atlas.createTilePrefab(atlas, tile);
+				let name = Atlas.createTilePrefab({ atlas: atlas, tile: tile, color: color });
 				if (tiles[index]) { scene.remove(tiles[index]); }
 				tiles[index] = scene.instantiate({
 					name: name,
@@ -34,8 +34,8 @@ module.exports = (function(){
 			}
 		};
 
-		tileMap.fill = (tile) => {
-			let name = Atlas.createTilePrefab(atlas, tile);
+		tileMap.fill = (tile, color) => {
+			let name = Atlas.createTilePrefab({ atlas: atlas, tile: tile, color: color });
 			for (let y = 0; y < h; y++) {
 				for (let x = 0; x < w; x++) {
 					let index = x + w * y;

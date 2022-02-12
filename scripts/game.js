@@ -2,7 +2,7 @@ const Fury = require('../fury/src/fury');
 const TextMesh = require('./textmesh');
 const Spawner = require('./spawner');
 const GameMap = require('./gameMap');
-const { vec2, vec3 } = Fury.Maths;
+const { vec2, vec3, vec4 } = Fury.Maths;
 
 module.exports = (function(){
 	let exports = {};
@@ -149,11 +149,22 @@ module.exports = (function(){
 		}
 	};
 
+	let red = vec4.fromValues(1, 0, 0, 1);
 	let updateHealthBar = (player) => {
+		if (!hud.healthBarLabel) {
+			hud.healthBarLabel = TextMesh.create({
+				text: "Health:",
+				scene: uiScene,
+				atlas: uiAtlas,
+				position: vec3.fromValues(uiAtlas.tileSize, canvas.height - 2 * uiAtlas.tileSize, 0),
+				alignment: TextMesh.Alignment.left
+			});
+		}
 		if (hud.healthBar) {
 			hud.healthBar.remove();
 		}
-		let healthString = "Health:";
+
+		let healthString = "";
 		for (let i = 0; i < player.health; i++) {
 			healthString += " ♥";
 		}
@@ -161,8 +172,9 @@ module.exports = (function(){
 			text: healthString,
 			scene: uiScene,
 			atlas: uiAtlas,
-			position: vec3.fromValues(uiAtlas.tileSize, canvas.height - 2 * uiAtlas.tileSize, 0),
-			alignment: TextMesh.Alignment.left
+			position: vec3.fromValues(uiAtlas.tileSize * 8, canvas.height - 2 * uiAtlas.tileSize, 0),
+			alignment: TextMesh.Alignment.left,
+			color: red
 		});
 	};
 

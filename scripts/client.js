@@ -54,7 +54,7 @@ let loadAssets = (callback) => {
 		});
 	};
 
-	loadAtlas(cp437Atlas, true); // TODO: Add color uniform to sprite shader, and mix with texture - default to [1,1,1,1] if not provided - for coloured text
+	loadAtlas(cp437Atlas, true);
 	loadAtlas(dungeonAtlas, false);
 };
 

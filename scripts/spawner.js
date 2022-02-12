@@ -23,7 +23,7 @@ module.exports = (function(){
 				position: position
 			};
 			entity.sceneObject = scene.instantiate({
-				name: Atlas.createTilePrefab(atlas, name, true),
+				name: Atlas.createTilePrefab({ atlas: atlas, tile: name, alpha: true }),
 				position: position
 			});
 			return entity;

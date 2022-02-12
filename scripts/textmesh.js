@@ -12,7 +12,7 @@ module.exports = (function(){
 	};
 
 	exports.create = (config) => {
-		let { text, scene, atlas, position, alignment } = config;
+		let { text, scene, atlas, position, alignment, color } = config;
 		let textMesh = {}; 
 
 		let offset = 0;
@@ -28,14 +28,14 @@ module.exports = (function(){
 			width: text.length,
 			height: 1,
 			position: pos,
-			atlas: atlas 
+			atlas: atlas, 
 		});
 	
 		for (let i = 0, l = text.length; i < l; i++) {
-			tileMap.setTile(i, 0, text[i]);
+			tileMap.setTile(i, 0, text[i], color);
 		}
 
-		textMesh.setChar = (i, char) => { tileMap.setTile(i, 0, char); };
+		textMesh.setChar = (i, char) => { tileMap.setTile(i, 0, char, color); };
 		textMesh.remove = tileMap.remove;
 
 		return textMesh;
