@@ -33,6 +33,7 @@ module.exports = (function(){
 				});
 			}
 		};
+
 		tileMap.fill = (tile) => {
 			let name = Atlas.createTilePrefab(atlas, tile);
 			for (let y = 0; y < h; y++) {
@@ -46,6 +47,19 @@ module.exports = (function(){
 				}
 			}
 		};
+
+		tileMap.isTileActive = (x, y) => {
+			if (x >= 0 && y >= 0 && x < w && y < h) {
+				return tiles[x + y * w].active;
+			}
+		};
+		
+		tileMap.setTileActive = (x, y, active) => {
+			if (x >= 0 && y >= 0 && x < w && y < h) {
+				tiles[x + y * w].active = active;
+			}
+		};
+
 		tileMap.remove = () => {
 			for (let i = 0, l = tiles.length; i < l; i++) {
 				scene.remove(tiles[i]);

@@ -92,6 +92,61 @@ module.exports = (function(){
 		}));
 
 		updateHealthBar(world.player);
+
+		updateFogOfWar(world);
+	};
+
+	let itemsByIndex = [];
+	let monstersByIndex = [];
+	let updateFogOfWar = (world) => {
+		// Brute force fog of war - this is a good test of the raycast check
+		// however we'd be better off building a visibility set
+		for (let x = 0, xMax = world.map.width; x < xMax; x++) {
+			for (let y = 0, yMax = world.map.height; y < yMax; y++) {
+				world.map.setTileActive(x, y, false);
+			}
+		}
+
+		// Build monster and item by index arrays - should probalby have this on world.
+		// and could hide the indexing
+		monstersByIndex.length = 0;
+		for (let i = 0, l = world.monsters.length; i < l; i++) {
+			let monster = world.monsters[i]; 
+			monster.sceneObject.active = false;
+			monstersByIndex[monster.x + world.map.width * monster.y] = monster;
+		}
+
+		itemsByIndex.length = 0;
+		for (let i = 0, l = world.items.length; i < l; i++) {
+			let item = world.items[i];
+			item.sceneObject.active = false;
+			itemsByIndex[item.x + world.map.width + item.y] = item;
+		}
+
+		let range = 8;
+		for (let i = -range; i <= range; i++) {
+			for (let j = -range; j <= range; j++) {
+				if (Math.abs(i) + Math.abs(j) <= range) {
+					let x = world.player.x + i;
+					let y = world.player.y + j;
+					if (x >= 0 && y >= 0 && x < world.map.width && y < world.map.height 
+						&& world.map.hasLineOfSight(world.player.x, world.player.y, x, y)) {
+
+						world.map.setTileActive(x, y, true);
+
+						let index = x + world.map.width * y; 
+						let monster = monstersByIndex[index];
+						if (monster) {
+							monster.sceneObject.active = true;
+						}
+						let item = itemsByIndex[index];
+						if (item) {
+							item.sceneObject.active = true;
+						}
+					}
+				}
+			}
+		}
 	};
 
 	let updateHealthBar = (player) => {
@@ -112,6 +167,7 @@ module.exports = (function(){
 	};
 
 	let createEndGameMessage = (text) => {
+		// Larger text Atlas would nice for big messages
 		TextMesh.create({ 
 			text: text,
 			scene: uiScene,
@@ -138,6 +194,8 @@ module.exports = (function(){
 
 			nav.getNavigableTileIndexSet(navigableTiles);
 
+			updateFogOfWar(world);
+
 			// Monster turn!
 			let takenIndices = [];
 			for (let i = 0, l = world.monsters.length; i < l; i++) {
@@ -148,8 +206,9 @@ module.exports = (function(){
 				let monster = world.monsters[i];
 				let x = px = monster.x, y = py = monster.y;
 				let distanceToPlayer = nav.getValue(x, y, 0);
-				if (distanceToPlayer > 1 && distanceToPlayer < 7) {
-					// TODO: Check Line of Sight
+				if (distanceToPlayer > 1 && distanceToPlayer < 7
+					&& world.map.hasLineOfSight(world.player.x, world.player.y, monster.x, monster.y)) {
+					// Player -> monster to ensure monster 'sight' matches player expectation
 					// Move towards player until within 1 square
 					if (nav.getValue(x+1, y, distanceToPlayer) < distanceToPlayer) {
 						x += 1;

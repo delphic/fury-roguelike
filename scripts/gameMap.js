@@ -51,6 +51,14 @@ module.exports = (function(){
 			}
 		};
 
+		gameMap.isTileActive = (x, y) => {
+			return tileMap.isTileActive(x, y);
+		};
+
+		gameMap.setTileActive = (x, y, active) => {
+			tileMap.setTileActive(x, y, active);
+		};
+
 		gameMap.hasLineOfSight = (x0, y0, x1, y1) => {
 			let xDir = Math.sign(x1 - x0);
 			let yDir = Math.sign(y1 - y0);
