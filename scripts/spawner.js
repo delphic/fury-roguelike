@@ -36,9 +36,11 @@ module.exports = (function(){
 			return player;
 		};
 
-		spawner.spawnItem = (pos, name, onPickup) => {
-			let entity = spawnEntity(pos, name);
+		spawner.spawnItem = (pos, spriteName, name, onPickup, onUse) => {
+			let entity = spawnEntity(pos, spriteName);
+			entity.name = name;
 			entity.onPickup = onPickup;
+			entity.onUse = onUse;
 			return entity;
 		};
 

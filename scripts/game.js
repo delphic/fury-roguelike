@@ -9,7 +9,7 @@ module.exports = (function(){
 
 	let canvas;
 	let scene, uiScene, camera, uiCamera;
-	let hud = { healthBar: null };
+	let hud = { healthBar: null, inventory: [] };
 	let uiAtlas, dungeonAtlas;
 	let world = {
 		player: null,
@@ -88,14 +88,23 @@ module.exports = (function(){
 			let random = Math.random();
 			let randomOffset = 0;
 			if (mapsSpawned == 0 && random < mapChance) {
-				world.items.push(spawner.spawnItem(builder.spawnPoints[i], "map", () => {
-					world.map.revealMap();
-				}));
+				world.items.push(spawner.spawnItem(
+					builder.spawnPoints[i],
+					"map",
+					"Dungeon Map",
+					null,
+					world.map.revealMap
+				));
 				mapsSpawned += 1;
 				randomOffset += mapChance;
 			} else if (potionsSpawned < 2 && random < randomOffset + potionChance) {
-				world.items.push(spawner.spawnItem(builder.spawnPoints[i], "red_potion", () => {
-					world.player.health = Math.min(world.player.health+1, world.player.healthMax);
+				world.items.push(spawner.spawnItem(
+					builder.spawnPoints[i],
+					"red_potion",
+					"Healing Potion",
+					null,
+					() => {
+						world.player.health = Math.min(world.player.health + 1, world.player.healthMax);
 				}));
 				potionsSpawned += 1;
 				randomOffset += potionChance;
@@ -104,10 +113,14 @@ module.exports = (function(){
 			}
 		}
 
-		world.items.push(spawner.spawnItem(builder.goal, "amulet", () => {
-			createEndGameMessage("You Win!");
-			Fury.GameLoop.stop();
-			window.setTimeout(() => { window.location = window.location }, 1000);
+		world.items.push(spawner.spawnItem(
+			builder.goal,
+			"amulet",
+			"Amulet of Power",
+			() => {
+				createEndGameMessage("You Win!");
+				Fury.GameLoop.stop();
+				window.setTimeout(() => { window.location = window.location }, 1000);
 		}));
 
 		updateHealthBar(world.player);
@@ -192,6 +205,27 @@ module.exports = (function(){
 		});
 	};
 
+	let updateInventoryHud = (player) => {
+		if (hud.inventory.length != player.inventory.length) {
+			if (hud.inventory.length) {
+				for (let i = 0, l = hud.inventory.length; i < l; i++) {
+					hud.inventory[i].remove();
+				}
+				hud.inventory.length = 0;
+			}
+			for (let i = 0, l = player.inventory.length; i < l; i++) {
+				hud.inventory.push(
+					TextMesh.create({
+						text: (i + 1) + ". " + player.inventory[i].name,
+						scene: uiScene,
+						atlas: uiAtlas,
+						position: vec3.fromValues(uiAtlas.tileSize, canvas.height - (4 + i) * uiAtlas.tileSize, 0)
+					})
+				);
+			}
+		}
+	};
+
 	let createEndGameMessage = (text) => {
 		// Larger text Atlas would nice for big messages
 		TextMesh.create({ 
@@ -262,6 +296,7 @@ module.exports = (function(){
 			}
 
 			updateFogOfWar(world);
+			updateInventoryHud(world.player);
 			updateHealthBar(world.player);
 
 			if (world.player.health <= 0) {

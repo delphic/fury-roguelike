@@ -43,6 +43,19 @@ module.exports = (function(){
 				result = true;
 				targetX += 1;
 			}
+
+			for (let i = 0, l = player.inventory.length; i < l; i++) {
+				if (Fury.Input.keyUp(""+(i+1))) {
+					let item = player.inventory[i];
+					if (item.onUse) {
+						result = true;
+						item.onUse();
+						player.inventory.splice(i, 1);
+						break;
+					}
+				}
+			}
+
 			if (Fury.Input.keyUp("Space")) {
 				result = true;
 			}
