@@ -70,6 +70,14 @@ module.exports = (function(){
 			}
 		};
 
+		gameMap.revealMap = () => {
+			for (let x = 0; x < w; x++) {
+				for (let y = 0; y < h; y++) {
+					seenTileMap.setTileActive(x, y, true);
+				}
+			}
+		};
+
 		let tileVisiblity = [];
 		gameMap.buildVisibilitySet = (x, y, dist, out) => {
 			out.length = tileVisiblity.length = 0;

@@ -81,8 +81,27 @@ module.exports = (function(){
 		camera.position[0] = world.player.position[0];
 		camera.position[1] = world.player.position[1];
 
+		let mapsSpawned = 0, mapChance = 0.1;
+		let potionsSpawned = 0, potionChance = 0.1;
+
 		for (let i = 0, l = builder.spawnPoints.length; i < l; i++) {
-			world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], "goblin", 1));
+			let random = Math.random();
+			let randomOffset = 0;
+			if (mapsSpawned == 0 && random < mapChance) {
+				world.items.push(spawner.spawnItem(builder.spawnPoints[i], "map", () => {
+					world.map.revealMap();
+				}));
+				mapsSpawned += 1;
+				randomOffset += mapChance;
+			} else if (potionsSpawned < 2 && random < randomOffset + potionChance) {
+				world.items.push(spawner.spawnItem(builder.spawnPoints[i], "red_potion", () => {
+					world.player.health = Math.min(world.player.health+1, world.player.healthMax);
+				}));
+				potionsSpawned += 1;
+				randomOffset += potionChance;
+			} else {
+				world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], "goblin", 1));
+			}
 		}
 
 		world.items.push(spawner.spawnItem(builder.goal, "amulet", () => {
