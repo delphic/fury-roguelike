@@ -8,7 +8,7 @@ module.exports = (function(){
 	let exports = {};
 
 	exports.create = (config) => {
-		let { width: w, height: h, position, theme } = config;
+		let { width: w, height: h, position, theme, spawnExit } = config;
 
 		let gameMap = {};
 		gameMap.width = w;
@@ -25,6 +25,11 @@ module.exports = (function(){
 		config.position[2] -= 1; 
 		let grey = Maths.vec4.fromValues(0.5, 0.5, 0.5, 1);
 		let seenTileMap = TileMap.create(config);
+
+		gameMap.cleanUp = () => {
+			tileMap.remove();
+			seenTileMap.remove();
+		};
 
 		gameMap.setTile = (x, y, tileType) => {
 			if (x < 0 || x >= w || y < 0 || y >= h) {
@@ -51,6 +56,7 @@ module.exports = (function(){
 				return false;
 			}
 			switch(tiles[x + y * w]) {
+				case TileType.exit:
 				case TileType.floor:
 					return true;
 				default: 
@@ -222,6 +228,11 @@ module.exports = (function(){
 		gameMap.playerNav = FlowMap.create(flowMapConfig);
 
 		gameMap.builder = RoomsBuilder.create(gameMap, 20);
+
+		if (spawnExit) {
+			let goal = gameMap.builder.goal;
+			gameMap.setTile(goal[0], goal[1], TileType.exit);	
+		}
 
 		// Fill seen tilemap, and disable activeTiles and seenTiles
 		for (let x = 0; x < w; x++) {

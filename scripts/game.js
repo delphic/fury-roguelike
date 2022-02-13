@@ -1,22 +1,24 @@
 const Fury = require('../fury/src/fury');
 const TextMesh = require('./textmesh');
+const Hud = require('./hud');
 const Spawner = require('./spawner');
 const GameMap = require('./gameMap');
-const { vec2, vec3, vec4 } = Fury.Maths;
+const { vec2, vec3 } = Fury.Maths;
 
 module.exports = (function(){
 	let exports = {};
 
 	let canvas;
 	let scene, uiScene, camera, uiCamera;
-	let hud = { healthBar: null, inventory: [] };
 	let uiAtlas, dungeonAtlas;
+	let hud = null;
 	let world = {
 		player: null,
 		map: null,
 		monsters: [],
 		items: []
 	};
+	let depth = 0;
 
 	// temp variables
 	let intentPos = vec2.create();
@@ -57,6 +59,13 @@ module.exports = (function(){
 		createCameras();
 		createScenes();
 
+		buildMap(depth);
+
+		hud = Hud.create({ canvas: canvas, uiAtlas: uiAtlas, uiScene: uiScene, world: world });
+		hud.updateLevelDisplay(depth);
+	};
+
+	let buildMap = (depth) => {
 		let w = 40, h = 20;
 		let mapOrigin = vec3.fromValues(
 			-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
@@ -70,14 +79,23 @@ module.exports = (function(){
 			atlas: dungeonAtlas,
 			theme: {
 				0: "stone_floor",
-				1: "stone_wall"
-			}
+				1: "stone_wall",
+				2: "stairs_down"
+			},
+			spawnExit: depth < 2
 		});
 		let builder = world.map.builder;
 	
 		let spawner = Spawner.create({ atlas: dungeonAtlas, scene: scene, mapOrigin: mapOrigin });
 	
-		world.player = spawner.spawnPlayer(builder.playerStart, 3);
+		if (!world.player) {
+			world.player = spawner.spawnPlayer(builder.playerStart, 3);
+		} else {
+			world.player.x = builder.playerStart[0];
+			world.player.y = builder.playerStart[1];
+			world.player.position[0] = world.player.x * dungeonAtlas.tileSize + world.map.origin[0];
+			world.player.position[1] = world.player.y * dungeonAtlas.tileSize + world.map.origin[1];
+		}
 		camera.position[0] = world.player.position[0];
 		camera.position[1] = world.player.position[1];
 
@@ -93,7 +111,7 @@ module.exports = (function(){
 					"map",
 					"Dungeon Map",
 					null,
-					world.map.revealMap
+					() => { world.map.revealMap(); }
 				));
 				mapsSpawned += 1;
 				randomOffset += mapChance;
@@ -113,19 +131,35 @@ module.exports = (function(){
 			}
 		}
 
-		world.items.push(spawner.spawnItem(
-			builder.goal,
-			"amulet",
-			"Amulet of Power",
-			() => {
-				createEndGameMessage("You Win!");
-				Fury.GameLoop.stop();
-				window.setTimeout(() => { window.location = window.location }, 1000);
-		}));
-
-		updateHealthBar(world.player);
-
+		if (depth == 2) {
+			world.items.push(spawner.spawnItem(
+				builder.goal,
+				"amulet",
+				"Amulet of Power",
+				() => {
+					createEndGameMessage("You Win!");
+					Fury.GameLoop.stop();
+					window.setTimeout(() => { window.location = window.location }, 1000);
+			}));
+		}
 		updateFogOfWar(world);
+	};
+
+	let moveToNextLevel = () => {
+		// Clean up existing level
+		world.map.cleanUp();
+		for (let i = 0, l = world.monsters.length; i < l; i++) {
+			scene.remove(world.monsters[i].sceneObject);
+		}
+		world.monsters.length = 0;
+		for (let i = 0, l = world.items.length; i < l; i++) {
+			scene.remove(world.items[i].sceneObject);
+		}
+		world.items.length = 0;
+		// Increase depth and build new map
+		depth += 1;
+		buildMap(depth);
+		hud.updateLevelDisplay(depth);
 	};
 
 	let itemsByIndex = [];
@@ -140,8 +174,8 @@ module.exports = (function(){
 			world.map.setTileActive(x, y, false);
 		}
 
-		// Build monster and item by index arrays - should probably have this on world.
-		// and could hide the indexing
+		// Build monster and item by index arrays - should probably
+		// have this on world and could hide the indexing
 		monstersByIndex.length = 0;
 		for (let i = 0, l = world.monsters.length; i < l; i++) {
 			let monster = world.monsters[i]; 
@@ -172,56 +206,6 @@ module.exports = (function(){
 			let item = itemsByIndex[index];
 			if (item) {
 				item.sceneObject.active = true;
-			}
-		}
-	};
-
-	let red = vec4.fromValues(1, 0, 0, 1);
-	let updateHealthBar = (player) => {
-		if (!hud.healthBarLabel) {
-			hud.healthBarLabel = TextMesh.create({
-				text: "Health:",
-				scene: uiScene,
-				atlas: uiAtlas,
-				position: vec3.fromValues(uiAtlas.tileSize, canvas.height - 2 * uiAtlas.tileSize, 0),
-				alignment: TextMesh.Alignment.left
-			});
-		}
-		if (hud.healthBar) {
-			hud.healthBar.remove();
-		}
-
-		let healthString = "";
-		for (let i = 0; i < player.health; i++) {
-			healthString += " ♥";
-		}
-		hud.healthBar = TextMesh.create({
-			text: healthString,
-			scene: uiScene,
-			atlas: uiAtlas,
-			position: vec3.fromValues(uiAtlas.tileSize * 8, canvas.height - 2 * uiAtlas.tileSize, 0),
-			alignment: TextMesh.Alignment.left,
-			color: red
-		});
-	};
-
-	let updateInventoryHud = (player) => {
-		if (hud.inventory.length != player.inventory.length) {
-			if (hud.inventory.length) {
-				for (let i = 0, l = hud.inventory.length; i < l; i++) {
-					hud.inventory[i].remove();
-				}
-				hud.inventory.length = 0;
-			}
-			for (let i = 0, l = player.inventory.length; i < l; i++) {
-				hud.inventory.push(
-					TextMesh.create({
-						text: (i + 1) + ". " + player.inventory[i].name,
-						scene: uiScene,
-						atlas: uiAtlas,
-						position: vec3.fromValues(uiAtlas.tileSize, canvas.height - (4 + i) * uiAtlas.tileSize, 0)
-					})
-				);
 			}
 		}
 	};
@@ -296,16 +280,21 @@ module.exports = (function(){
 			}
 
 			updateFogOfWar(world);
-			updateInventoryHud(world.player);
-			updateHealthBar(world.player);
+
+			hud.updateInventoryDisplay(world.player);
+			hud.updateHealthBar(world.player);
 
 			if (world.player.health <= 0) {
 				createEndGameMessage("You Lose!");
 			}
 		}
 
-		scene.render();
-		uiScene.render();
+		if (depth < 2 && world.player.x == world.map.builder.goal[0] && world.player.y == world.map.builder.goal[1]) {
+			moveToNextLevel();
+		} else {
+			scene.render();
+			uiScene.render();
+		}
 	};
 
 	return exports;
