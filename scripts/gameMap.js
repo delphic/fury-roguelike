@@ -70,7 +70,53 @@ module.exports = (function(){
 			}
 		};
 
-		gameMap.hasLineOfSight = (x0, y0, x1, y1) => {
+		let tileVisiblity = [];
+		gameMap.buildVisibilitySet = (x, y, dist, out) => {
+			out.length = tileVisiblity.length = 0;
+			
+			// As we check if any portion of the tile is visible
+			// rather than the mid points, can not reuse lines from
+			// origin to outer most tiles to determine visibility
+			// So go to every tile, but check against existing set
+			
+			// If we change los to mid point, can reduce calls necessary
+
+			// TODO: Should probably check to see if just checking
+			// every tile with no out parameter is actually quicker.
+			for (let l = dist; l >= 0; l--) {
+				for (let i = 1; i <= l; i++) {
+					let tx = x + i;
+					let ty = y + l - i;
+					if (!tileVisiblity[tx + w * ty]) {
+						gameMap.hasLineOfSight(x, y, tx, ty, tileVisiblity);
+					}
+					tx = x + l - i;
+					ty = y - i;
+					if (!tileVisiblity[tx + w * ty]) {
+						gameMap.hasLineOfSight(x, y, tx, ty, tileVisiblity);
+					}
+					tx = x - i;
+					ty = y - l + i;
+					if (!tileVisiblity[tx + w * ty]) {
+						gameMap.hasLineOfSight(x, y, tx, ty, tileVisiblity);
+					}
+					tx = x - l + i;
+					ty = y + i;
+					if (!tileVisiblity[tx + w * ty]) {
+						gameMap.hasLineOfSight(x, y, tx, ty, tileVisiblity);
+					}
+				}
+			}
+
+			for (let i = 0, l = tileVisiblity.length; i < l; i++) {
+				if (tileVisiblity[i]) {
+					out.push(i);
+				}
+			}
+		};
+
+		gameMap.hasLineOfSight = (x0, y0, x1, y1, out) => {
+			// out stores tiles by index that were seen along the way
 			let xDir = Math.sign(x1 - x0);
 			let yDir = Math.sign(y1 - y0);
 
@@ -83,6 +129,7 @@ module.exports = (function(){
 					}
 					y = Math.round(y + yDir);
 				}
+				if (out) { out[x1 + y1 * w] = true; }
 				return true;
 			}
 
@@ -90,11 +137,13 @@ module.exports = (function(){
 				let x = x0;
 				// Just check left or right
 				for (let i = 0, l = Math.abs(x1 - x0); i < l; i++) {
+					if (out) { out[x + y0 * w] = true; }
 					if (!gameMap.canEnterTile(x, y0)) {
 						return false;
 					}
 					x = Math.round(x + xDir);
 				}
+				if (out) { out[x1 + y1 * w] = true; }
 				return true;
 			}
 
@@ -111,7 +160,8 @@ module.exports = (function(){
 			let tileX = x0, tileY = y0; // Stores the tile coordinate of the current tile being travelled through
 			let horiztonalBlocked = false, verticalBlocked = false;
 
-			while ((tileX != x1 || tileY != y1)) {
+			while (tileX != x1 || tileY != y1) {
+				if (out && !(horiztonalBlocked && verticalBlocked)) { out[tileX + tileY * w] = true; }
 				if (!gameMap.canEnterTile(tileX, tileY) || (horiztonalBlocked && verticalBlocked)) {
 					return false;
 				}
@@ -126,10 +176,12 @@ module.exports = (function(){
 				if (Maths.approximately(sqrToNextIntX, sqrToNextIntY, 0.0001)) {
 					// => Hit corner precisely, check can see one of the sides 
 					if (!horiztonalBlocked) {
-						horiztonalBlocked = !gameMap.canEnterTile(tileX, tileY + yDir);
+						if (out) { out[tileX + xDir + tileY * w] = true; }
+						horiztonalBlocked = !gameMap.canEnterTile(tileX + xDir, tileY);
 					}
 					if (!verticalBlocked) {
-						verticalBlocked = !gameMap.canEnterTile(tileX + xDir, tileY);
+						if (out) { out[tileX + (tileY + yDir) * w] = true; }
+						verticalBlocked = !gameMap.canEnterTile(tileX, tileY + yDir);
 					}
 					tileY = Math.round(tileY + yDir);
 					tileX = Math.round(tileX + xDir);
@@ -148,7 +200,11 @@ module.exports = (function(){
 				}
 			}
 			let isTileNavigable = gameMap.canEnterTile(tileX, tileY); // Show walls in corners
-			return tileX == x1 && tileY == y1 && (!horiztonalBlocked || !verticalBlocked || !isTileNavigable);
+			if (tileX == x1 && tileY == y1 && (!horiztonalBlocked || !verticalBlocked || !isTileNavigable)) {
+				if (out) { out[tileX + tileY * w] = true; }
+				return true;
+			}
+			return false;
 		};
 
 		let flowMapConfig = { width: w, height: h, gameMap: gameMap };
@@ -159,10 +215,11 @@ module.exports = (function(){
 
 		gameMap.builder = RoomsBuilder.create(gameMap, 20);
 
-		// Fill seen tilemap, but disabled by default
+		// Fill seen tilemap, and disable activeTiles and seenTiles
 		for (let x = 0; x < w; x++) {
 			for (let y = 0; y < h; y++) {
 				seenTileMap.setTile(x, y, theme[tiles[x + y * w]], grey);
+				tileMap.setTileActive(x, y, false);
 				seenTileMap.setTileActive(x, y, false);
 			}
 		}

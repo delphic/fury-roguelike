@@ -98,13 +98,14 @@ module.exports = (function(){
 
 	let itemsByIndex = [];
 	let monstersByIndex = [];
+	let visibilitySet = [];
+
 	let updateFogOfWar = (world) => {
-		// Brute force fog of war - this is a good test of the raycast check
-		// however we'd be better off building a visibility set
-		for (let x = 0, xMax = world.map.width; x < xMax; x++) {
-			for (let y = 0, yMax = world.map.height; y < yMax; y++) {
-				world.map.setTileActive(x, y, false);
-			}
+		for (let i = 0, l = visibilitySet.length; i < l; i++) {
+			let index = visibilitySet[i];
+			let x = index % world.map.width;
+			let y = Math.floor(index / world.map.width);
+			world.map.setTileActive(x, y, false);
 		}
 
 		// Build monster and item by index arrays - should probably have this on world.
@@ -123,28 +124,22 @@ module.exports = (function(){
 			itemsByIndex[item.x + world.map.width * item.y] = item;
 		}
 
-		let range = 8;
-		for (let i = -range; i <= range; i++) {
-			for (let j = -range; j <= range; j++) {
-				if (Math.abs(i) + Math.abs(j) <= range) {
-					let x = world.player.x + i;
-					let y = world.player.y + j;
-					if (x >= 0 && y >= 0 && x < world.map.width && y < world.map.height 
-						&& world.map.hasLineOfSight(world.player.x, world.player.y, x, y)) {
+		world.map.buildVisibilitySet(world.player.x, world.player.y, 8, visibilitySet);
 
-						world.map.setTileActive(x, y, true);
+		for (let i = 0, l = visibilitySet.length; i < l; i++) {
+			let index = visibilitySet[i];
+			let x = index % world.map.width;
+			let y = Math.floor(index / world.map.width);
 
-						let index = x + world.map.width * y; 
-						let monster = monstersByIndex[index];
-						if (monster) {
-							monster.sceneObject.active = true;
-						}
-						let item = itemsByIndex[index];
-						if (item) {
-							item.sceneObject.active = true;
-						}
-					}
-				}
+			world.map.setTileActive(x, y, true);
+
+			let monster = monstersByIndex[index];
+			if (monster) {
+				monster.sceneObject.active = true;
+			}
+			let item = itemsByIndex[index];
+			if (item) {
+				item.sceneObject.active = true;
 			}
 		}
 	};
