@@ -72,7 +72,6 @@ module.exports = (function(){
 			-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
 			-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
 			-16);
-		let builderType = (Math.random() < 0.5 ? BuilderType.rooms : BuilderType.drunkardsWalk);
 		world.map = GameMap.create({
 			scene: scene,
 			width: w,
@@ -85,7 +84,7 @@ module.exports = (function(){
 				2: "stairs_down"
 			},
 			spawnExit: depth < 2,
-			builderType: builderType
+			builderType: Math.floor(3 * Math.random())
 		});
 		let builder = world.map.builder;
 	

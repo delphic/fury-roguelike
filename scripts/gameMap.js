@@ -1,8 +1,9 @@
 const TileMap = require('./tilemap');
 const FlowMap = require('./flowMap');
 const BuilderType = require('./mapBuilder/buildertype');
-const RoomsBuilder = require('./mapBuilder/rooms'); 
+const AutomataBuilder = require('./mapBuilder/automata');
 const DrunkardBuilder = require('./mapBuilder/drunkard');
+const RoomsBuilder = require('./mapBuilder/rooms'); 
 const TileType = require('./tileType');
 const Maths = require('../fury/src/maths');
 
@@ -256,6 +257,8 @@ module.exports = (function(){
 			case BuilderType.rooms:
 				gameMap.builder = RoomsBuilder.create(gameMap, 20);
 				break;
+			case BuilderType.cellularAutomata:
+				gameMap.builder = AutomataBuilder.create({ gameMap: gameMap, monsterCount: 20 });
 		}
 
 		if (spawnExit) {
