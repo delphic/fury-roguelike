@@ -3,6 +3,7 @@ const TextMesh = require('./textmesh');
 const Hud = require('./hud');
 const Spawner = require('./spawner');
 const GameMap = require('./gameMap');
+const BuilderType = require('./mapBuilder/builderType');
 const { vec2, vec3 } = Fury.Maths;
 
 module.exports = (function(){
@@ -71,6 +72,7 @@ module.exports = (function(){
 			-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
 			-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
 			-16);
+		let builderType = (Math.random() < 0.5 ? BuilderType.rooms : BuilderType.drunkardsWalk);
 		world.map = GameMap.create({
 			scene: scene,
 			width: w,
@@ -82,7 +84,8 @@ module.exports = (function(){
 				1: "stone_wall",
 				2: "stairs_down"
 			},
-			spawnExit: depth < 2
+			spawnExit: depth < 2,
+			builderType: builderType
 		});
 		let builder = world.map.builder;
 	

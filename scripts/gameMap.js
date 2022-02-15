@@ -1,6 +1,8 @@
 const TileMap = require('./tilemap');
 const FlowMap = require('./flowMap');
+const BuilderType = require('./mapBuilder/buildertype');
 const RoomsBuilder = require('./mapBuilder/rooms'); 
+const DrunkardBuilder = require('./mapBuilder/drunkard');
 const TileType = require('./tileType');
 const Maths = require('../fury/src/maths');
 
@@ -8,7 +10,7 @@ module.exports = (function(){
 	let exports = {};
 
 	exports.create = (config) => {
-		let { width: w, height: h, position, theme, spawnExit } = config;
+		let { width: w, height: h, position, theme, spawnExit, builderType } = config;
 
 		let gameMap = {};
 		gameMap.width = w;
@@ -40,6 +42,20 @@ module.exports = (function(){
 			} else {
 				console.error("Unexpected tiletype " + tileType);
 			}
+		};
+
+		gameMap.getPointIndex = (x, y) => {
+			return x + w * y;
+		};
+
+		gameMap.getTilesOfType = (out, tileType) => {
+			out.length = 0;
+			for (let i = 0, l = tiles.length; i < l; i++) {
+				if (tiles[i] === tileType) {
+					out.push(i); 
+				}
+			}
+			return out;
 		};
 
 		gameMap.fill = (tileType) => {
@@ -227,11 +243,24 @@ module.exports = (function(){
 		};
 		gameMap.playerNav = FlowMap.create(flowMapConfig);
 
-		gameMap.builder = RoomsBuilder.create(gameMap, 20);
+		switch(builderType) {
+			case BuilderType.drunkardsWalk:
+				gameMap.builder = DrunkardBuilder.create({
+					gameMap: gameMap,
+					fillRatio: 0.33,
+					staggerDist: 400,
+					monsterCount: 20 
+				});
+				break;
+			default:
+			case BuilderType.rooms:
+				gameMap.builder = RoomsBuilder.create(gameMap, 20);
+				break;
+		}
 
 		if (spawnExit) {
 			let goal = gameMap.builder.goal;
-			gameMap.setTile(goal[0], goal[1], TileType.exit);	
+			gameMap.setTile(goal[0], goal[1], TileType.exit);
 		}
 
 		// Fill seen tilemap, and disable activeTiles and seenTiles
