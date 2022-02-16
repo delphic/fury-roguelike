@@ -25,6 +25,14 @@ canvas {
 	/* https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering */
 }
 
+.fullScreen .hideOnFullScreen {
+	display: none;
+}
+
+.fullScreen #fury {
+	margin: 0;
+}
+
 a, a:visited {
 	font-weight: bold;
 	color: hsl(336,100%,60%);

@@ -3,7 +3,7 @@ const Atlas = require('./atlas');
 const Fury = require('../fury/src/fury');
 const furyCanvasId = "fury";
 
-let scaleFactor = 2;
+let scaleFactor = 1;
 let canvasWidth = 640, canvasHeight = 360;
 let canvas;
 
@@ -29,13 +29,34 @@ window.addEventListener('load', () => {
 	canvas = document.getElementById(furyCanvasId);
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
+
+	resizeCanvas();
+
+	window.addEventListener('resize', resizeCanvas);
+	
+	loadAssets(start);	
+});
+
+let resizeCanvas = () => {
+	scaleFactor = 1;
+
+	while (canvas.width * (scaleFactor + 1) / window.devicePixelRatio <= window.innerWidth
+		&& canvas.height * (scaleFactor + 1) / window.devicePixelRatio <= window.innerHeight) {
+		scaleFactor += 1;
+	}
+
+	if (canvas.width * scaleFactor / window.devicePixelRatio == window.innerWidth 
+		|| canvas.height * scaleFactor / window.devicePixelRatio == window.innerHeight) {
+		document.body.classList.add("fullScreen");
+	} else {
+		document.body.classList.remove("fullScreen");
+	}
+
 	canvas.setAttribute(
 		"style",
 		"width: " + (canvas.width * scaleFactor / window.devicePixelRatio) + "px;"
 		+ " height: " + (canvas.height * scaleFactor / window.devicePixelRatio) + "px;");
-	
-	loadAssets(start);	
-});
+};
 
 let loadAssets = (callback) => {
 	let assetsLoading = 0;
