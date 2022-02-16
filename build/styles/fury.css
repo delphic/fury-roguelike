@@ -11,6 +11,10 @@ body {
 	text-align: center;
 }
 
+body.fullScreen {
+	background-color: black;
+}
+
 #fury {
 	display: block;
 	margin: 1em auto;
