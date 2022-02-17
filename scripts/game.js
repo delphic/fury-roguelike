@@ -15,6 +15,7 @@ module.exports = (function(){
 
 	let currentState;
 	let inGameState = null;
+	let mainMenuState = null;
 
 	let createCameras = () => {
 		// Main camera
@@ -64,9 +65,13 @@ module.exports = (function(){
 		config.scene = scene;
 		config.camera = camera;
 		config.changeState = changeState;
+
+		// TODO: Maybe have a submodule so just import GameStates
+		// and have GameStates.State, GameStates.MainMenu, GameStates.InGame etc
+		mainMenuState = (require('./gameStates/mainMenu')).create(config);
 		inGameState = (require('./gameStates/inGame')).create(config);
 
-		changeState(State.inGame);
+		changeState(State.mainMenu);
 	};
 
 	let createCenteredMessage = (text) => {
@@ -82,6 +87,9 @@ module.exports = (function(){
 
 	let changeState = (newState) => {
 		switch (currentState) {
+			case State.mainMenu:
+				mainMenuState.exit();
+				break;
 			case State.inGame:
 				inGameState.exit();
 				break;
@@ -93,6 +101,9 @@ module.exports = (function(){
 				break;
 		}
 		switch (newState) {
+			case State.mainMenu:
+				mainMenuState.enter();
+				break;
 			case State.inGame:
 				inGameState.enter();
 				break;
@@ -120,6 +131,9 @@ module.exports = (function(){
 
 	exports.update = (elapsed) => {
 		switch (currentState) {
+			case State.mainMenu:
+				mainMenuState.update(elapsed);
+				break;
 			case State.inGame:
 				inGameState.update(elapsed);
 				break;
