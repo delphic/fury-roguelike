@@ -1,3 +1,4 @@
+const Random = require('../../fury/src/random');
 const { vec2 } = require('../../fury/src/maths');
 const TileType = require('../tileType');
 
@@ -44,7 +45,7 @@ module.exports =  (function(){
 			let rowA = [];
 			let rowB = [];
 			for (let x = 0; x < gameMap.width; x++) {
-				rowA[x] = Math.random() < 0.55 ? TileType.floor : TileType.wall;
+				rowA[x] = Random.value() < 0.55 ? TileType.floor : TileType.wall;
 				rowB[x] = rowA[x];
 			}
 			a[y] = rowA;
@@ -108,7 +109,7 @@ module.exports =  (function(){
 		// Find spawn points 
 		let numSpawnPoints = 0;
 		while (numSpawnPoints < monsterCount && floorTiles.length > 0) {
-			let mapIdx = floorTiles.splice(floorTiles.length * Math.random(), 1);
+			let mapIdx = floorTiles.splice(Random.integer(0, floorTiles.length), 1);
 			builder.spawnPoints.push(vec2.fromValues(mapIdx % gameMap.width, Math.floor(mapIdx / gameMap.width) ));
 			numSpawnPoints++;
 		}

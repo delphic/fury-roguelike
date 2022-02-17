@@ -1,4 +1,5 @@
 const Bounds = require('../../fury/src/bounds');
+const { Random } = require('../../fury/src/fury');
 const { vec2 } = require('../../fury/src/maths');
 const TileType = require('../tileType');
 
@@ -23,13 +24,13 @@ module.exports =  (function(){
 			// Some 2D Bounds / Rect functions would be nice
 			// Also Fury.Random should be a thing
 			let min = [ 
-				1 + Math.floor((gameMap.width - maxRoomSize - 1) * Math.random()),
-				1 + Math.floor((gameMap.height - maxRoomSize - 1) * Math.random()),
+				Random.integer(1, gameMap.width - maxRoomSize - 1),
+				Random.integer(1, gameMap.height - maxRoomSize - 1),
 				0
 			];
 			let max = [
-				min[0] + 2 + Math.floor((maxRoomSize - 2) * Math.random()),
-				min[1] + 2 + Math.floor((maxRoomSize - 2) * Math.random()),
+				min[0] + Random.integer(2, maxRoomSize),
+				min[1] + Random.integer(2, maxRoomSize),
 				1
 			];
 			let room = Bounds.create({ min: min, max: max });
@@ -75,7 +76,7 @@ module.exports =  (function(){
 			vec2.floor(prev, rooms[i-1].center);
 			vec2.floor(next, rooms[i].center);
 
-			if (Math.random() < 0.5) {
+			if (Random.value() < 0.5) {
 				applyHorizontalTunnel(prev[0], next[0], prev[1]);
 				applyVerticalTunnel(prev[1], next[1], next[0]);
 			} else {

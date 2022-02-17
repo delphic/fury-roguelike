@@ -4,6 +4,7 @@ const Spawner = require('../spawner');
 const GameMap = require('../gameMap');
 const GameState = require('./gameState');
 const BuilderType = require('../mapBuilder/builderType');
+const { Random } = Fury;
 const { vec2, vec3 } = Fury.Maths;
 
 module.exports = (function(){
@@ -95,7 +96,7 @@ module.exports = (function(){
 					2: "stairs_down"
 				},
 				spawnExit: depth < 2,
-				builderType: Math.floor(3 * Math.random())
+				builderType: Random.roll(0,2)
 			});
 			let builder = world.map.builder;
 		
@@ -117,9 +118,9 @@ module.exports = (function(){
 			let potionsSpawned = 0, potionChance = 0.1;
 	
 			for (let i = 0, l = builder.spawnPoints.length; i < l; i++) {
-				let random = Math.random();
+				let randomValue = Random.value();
 				let randomOffset = 0;
-				if (mapsSpawned == 0 && random < mapChance) {
+				if (mapsSpawned == 0 && randomValue < mapChance) {
 					world.items.push(spawner.spawnItem(
 						builder.spawnPoints[i],
 						"map",
@@ -129,7 +130,7 @@ module.exports = (function(){
 					));
 					mapsSpawned += 1;
 					randomOffset += mapChance;
-				} else if (potionsSpawned < 2 && random < randomOffset + potionChance) {
+				} else if (potionsSpawned < 2 && randomValue < randomOffset + potionChance) {
 					world.items.push(spawner.spawnItem(
 						builder.spawnPoints[i],
 						"red_potion",

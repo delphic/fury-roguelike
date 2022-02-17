@@ -1,4 +1,4 @@
-const Bounds = require('../../fury/src/bounds');
+const { Random } = require('../../fury/src/fury');
 const { vec2 } = require('../../fury/src/maths');
 const TileType = require('../tileType');
 
@@ -14,7 +14,7 @@ module.exports =  (function(){
 			}
 			out.push(gameMap.getPointIndex(x, y));
 			gameMap.setTile(x, y, TileType.floor);
-			switch (Math.floor(4 * Math.random())) {
+			switch (Random.integer(0,4)) {
 				case 0:
 					x -= 1;
 					break;
@@ -63,8 +63,8 @@ module.exports =  (function(){
 		gameMap.fill(TileType.wall);
 		performDrunkardsWalk(drunkardsTiles, x, y, gameMap, staggerDist);
 		while (gameMap.getTilesOfType(floorTiles, TileType.floor).length < numDesiredFloorTiles) {
-			x = 1 + Math.floor(Math.random() * (gameMap.width - 2));
-			y = 1 + Math.floor(Math.random() * (gameMap.height - 2));
+			x = Random.integer(1, gameMap.width - 1);
+			y = Random.integer(1, gameMap.height - 1);
 
 			performDrunkardsWalk(drunkardsTiles, x, y, gameMap, staggerDist);
 
@@ -106,7 +106,7 @@ module.exports =  (function(){
 		
 		let numSpawnedMonsters = 0;
 		while (numSpawnedMonsters < monsterCount && floorTiles.length > 0) {
-			let mapIdx = floorTiles.splice(floorTiles.length * Math.random(), 1);
+			let mapIdx = floorTiles.splice(Random.integer(0, floorTiles.length), 1);
 			builder.spawnPoints.push(vec2.fromValues( mapIdx % gameMap.width, Math.floor(mapIdx / gameMap.width) ));
 			numSpawnedMonsters++;
 		}
