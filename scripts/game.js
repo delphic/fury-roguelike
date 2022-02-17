@@ -11,6 +11,8 @@ module.exports = (function(){
 	let scene, uiScene, camera, uiCamera;
 	let uiAtlas, dungeonAtlas;
 
+	let endStateMessage = null;
+
 	let currentState;
 	let inGameState = null;
 
@@ -67,17 +69,15 @@ module.exports = (function(){
 		changeState(State.inGame);
 	};
 
-	let createEndGameMessage = (text) => {
+	let createCenteredMessage = (text) => {
 		// Larger text Atlas would nice for big messages
-		TextMesh.create({ 
+		return TextMesh.create({ 
 			text: text,
 			scene: uiScene,
 			atlas: uiAtlas,
 			position: vec3.fromValues(0.5 * canvas.width, 0.5 * canvas.height, 0),
 			alignment: TextMesh.Alignment.center
 		});
-		Fury.GameLoop.stop();
-		window.setTimeout(() => { window.location = window.location }, 1000);
 	};
 
 	let changeState = (newState) => {
@@ -85,25 +85,37 @@ module.exports = (function(){
 			case State.inGame:
 				inGameState.exit();
 				break;
+			case State.victoryScreen:
+			case State.lossScreen:
+				if (endStateMessage) {
+					endStateMessage.remove();
+				}
+				break;
 		}
 		switch (newState) {
 			case State.inGame:
 				inGameState.enter();
 				break;
 			case State.victoryScreen:
-				// TODO: Restart including set random seed instead
-				createEndGameMessage("You Win!");
+				endStateMessage = createCenteredMessage("You Win!");
 				Fury.GameLoop.stop();
-				window.setTimeout(() => { window.location = window.location }, 1000);
+				window.setTimeout(restart, 3000);
 				break;
 			case State.lossScreen:
-				// TODO: Restart including set random seed instead
-				createEndGameMessage("You Lose!");
+				endStateMessage = createCenteredMessage("You Lose!");
 				Fury.GameLoop.stop();
-				window.setTimeout(() => { window.location = window.location }, 1000);
+				window.setTimeout(restart, 1000);
 				break;
 		}
 		currentState = newState;
+	};
+
+	let restart = () => {
+		inGameState.reset();
+		setRandomSeed();
+		Fury.GameLoop.start();
+		changeState(State.inGame); 
+
 	};
 
 	exports.update = (elapsed) => {

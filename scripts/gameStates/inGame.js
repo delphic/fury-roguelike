@@ -183,6 +183,19 @@ module.exports = (function(){
 			depth += 1;
 		};
 
+		state.reset = () => {
+			depth = 0;
+			world.player.health = world.player.healthMax;
+			for (let i = 0, l = world.player.inventory.length; i < l; i++) {
+				scene.remove(world.player.inventory[i].sceneObject);
+			}
+			world.player.inventory.length = 0;
+			// refresh HUD
+			hud.updateHealthBar(world.player);
+			hud.updateLevelDisplay(depth);
+			hud.updateInventoryDisplay(world.player);
+		};
+
 		state.update = (elapsed) => {
 			// Wait for input
 			if (world.player.checkForInput(elapsed, intentPos)) {
