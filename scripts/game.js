@@ -42,6 +42,12 @@ module.exports = (function(){
 		uiScene = Fury.Scene.create({ camera: uiCamera });
 	};
 
+	let setRandomSeed = () => {
+		let seed = Fury.Random.generateSeed();
+		Fury.Random.setSeed(seed);
+		console.log("Set seed to " + seed);
+	};
+
 	exports.init = (config) => {
 		canvas = config.canvas;
 		uiAtlas = config.uiAtlas;
@@ -49,6 +55,8 @@ module.exports = (function(){
 
 		createCameras();
 		createScenes();
+
+		setRandomSeed();
 
 		config.uiScene = uiScene;
 		config.scene = scene;
@@ -83,12 +91,16 @@ module.exports = (function(){
 				inGameState.enter();
 				break;
 			case State.victoryScreen:
+				// TODO: Restart including set random seed instead
 				createEndGameMessage("You Win!");
 				Fury.GameLoop.stop();
 				window.setTimeout(() => { window.location = window.location }, 1000);
 				break;
 			case State.lossScreen:
+				// TODO: Restart including set random seed instead
 				createEndGameMessage("You Lose!");
+				Fury.GameLoop.stop();
+				window.setTimeout(() => { window.location = window.location }, 1000);
 				break;
 		}
 		currentState = newState;
