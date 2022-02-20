@@ -94,7 +94,8 @@ let start = () => {
 	Game.init({
 		canvas: canvas,
 		uiAtlas: config.atlases["cp437"],
-		dungeonAtlas: config.atlases["dungeon"]
+		dungeonAtlas: config.atlases["dungeon"],
+		gameConfig: config
 	});
 	Fury.GameLoop.init({ loop: Game.update });
 	Fury.GameLoop.start();

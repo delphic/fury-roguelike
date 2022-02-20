@@ -4,6 +4,7 @@ const BuilderType = require('./mapBuilder/buildertype');
 const AutomataBuilder = require('./mapBuilder/automata');
 const DrunkardBuilder = require('./mapBuilder/drunkard');
 const RoomsBuilder = require('./mapBuilder/rooms'); 
+const Stamp = require('./mapBuilder/stamp');
 const TileType = require('./tileType');
 const Maths = require('../fury/src/maths');
 
@@ -11,7 +12,7 @@ module.exports = (function(){
 	let exports = {};
 
 	exports.create = (config) => {
-		let { width: w, height: h, position, theme, spawnExit, builderType } = config;
+		let { width: w, height: h, position, theme, spawnExit, builderType, stamp } = config;
 
 		let gameMap = {};
 		gameMap.width = w;
@@ -32,6 +33,10 @@ module.exports = (function(){
 		gameMap.cleanUp = () => {
 			tileMap.remove();
 			seenTileMap.remove();
+		};
+
+		gameMap.isInBounds = (x, y) => {
+			return x >= 0 && y >= 0 && x < w && y < h;
 		};
 
 		gameMap.setTile = (x, y, tileType) => {
@@ -147,6 +152,10 @@ module.exports = (function(){
 		};
 
 		gameMap.hasLineOfSight = (x0, y0, x1, y1, out) => {
+			if (!gameMap.isInBounds(x0, y0) || !gameMap.isInBounds(x1, y1)) {
+				return false;
+			}
+
 			// out stores tiles by index that were seen along the way
 			let xDir = Math.sign(x1 - x0);
 			let yDir = Math.sign(y1 - y0);
@@ -261,6 +270,11 @@ module.exports = (function(){
 				break;
 			case BuilderType.cellularAutomata:
 				gameMap.builder = AutomataBuilder.create({ gameMap: gameMap, monsterCount: monsterCount });
+		}
+
+		// Try add stamp if provided
+		if (stamp) {
+			Stamp.tryApply(gameMap, stamp);
 		}
 
 		if (spawnExit) {
