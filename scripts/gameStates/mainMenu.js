@@ -7,6 +7,7 @@ module.exports = (function(){
     let exports = {};
 
     let rink = vec4.fromValues(1.0, 0.0, 0.4, 1.0);
+    let lime = vec4.fromValues(0.0, 1.0, 0.0, 1.0);
 
     exports.create = (config) => {
         let { canvas, scene, uiScene, uiAtlas, changeState } = config;
@@ -39,7 +40,7 @@ module.exports = (function(){
             let y = Math.floor(h/2);
             lore = createText("Seek the Amulet of Power to save your town from the monsters!", cx, y+5);
             instructions = createText("Use the arrow keys to move and attack, and space to wait.", cx, y+1);
-            enterText = createText("1. Enter Dungeon", cx, y-8, rink);
+            enterText = createText("1. Enter Dungeon", cx, y-8, lime);
 
             scene.render();
             uiScene.render();
