@@ -280,6 +280,9 @@ module.exports = (function(){
 		if (spawnExit) {
 			let goal = gameMap.builder.goal;
 			gameMap.setTile(goal[0], goal[1], TileType.exit);
+			gameMap.hasExit = true;
+		} else {
+			gameMap.hasExit = false;
 		}
 
 		// Fill seen tilemap, and disable activeTiles and seenTiles

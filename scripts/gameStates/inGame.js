@@ -314,7 +314,7 @@ module.exports = (function(){
 				}
 			}
 
-			if (depth < 2 && world.player.x == world.map.builder.goal[0] && world.player.y == world.map.builder.goal[1]) {
+			if (world.map.hasExit && world.player.x == world.map.builder.goal[0] && world.player.y == world.map.builder.goal[1]) {
 				changeState(GameState.inGame);
 			} else {
 				scene.render();
