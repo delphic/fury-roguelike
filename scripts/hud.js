@@ -79,6 +79,9 @@ module.exports = (function(){
 
 		hud.updateWeaponDisplay = (player) => {
 			if (player.weapon && player.weapon.name != currentlyDisplayedWeapon) {
+				if (hud.weaponDisplay) {
+					hud.weaponDisplay.remove();
+				}
 				hud.weaponDisplay = TextMesh.create({
 					text: player.weapon.name +  " (" + player.weapon.damage + ")",
 					scene: uiScene,
@@ -90,6 +93,7 @@ module.exports = (function(){
 			} else if (!player.weapon && hud.weaponDisplay) {
 				hud.weaponDisplay.remove();
 				hud.weaponDisplay = null;
+				currentlyDisplayedWeapon = null;
 			}
 		};
 
