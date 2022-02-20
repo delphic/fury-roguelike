@@ -9,7 +9,7 @@
 		},
 		"dungeon": {
 			"id": "dungeon",
-			"map": [ "dirt", "tree", "stone_floor", "stairs_down", "stone_wall", "goblin", "goblin_boss", "short_sword", "player", "claws", "teeth", "long_sword", "red_potion", "map", "amulet", "broad_sword" ],
+			"map": [ "dirt", "tree", "stone_floor", "stairs_down", "stone_wall", "goblin", "goblin_boss", "shortsword", "player", "claws", "teeth", "longsword", "red_potion", "map", "amulet", "broadsword" ],
 			"size": 4,
 			"tileSize": 32,
 			"path": "images/dungeon-atlas.png"
@@ -49,7 +49,9 @@
 				"goblin": 1
 			},
 			"item_spawns": [
-				{ "item": "potion", "chance": 0.1, "limit": 4 }
+				{ "item": "potion", "chance": 0.1, "limit": 4 },
+				{ "item": "shortsword", "chance": 0.1, "limit": 1 },
+				{ "item": "longsword", "chance": 0.05, "limit": 1 }
 			],
 			"goal": "stairs"
 		},
@@ -68,7 +70,9 @@
 			},
 			"item_spawns": [
 				{ "item": "map", "chance": 0.1, "limit": 1 },
-				{ "item": "potion", "chance": 0.1, "limit": 2 }
+				{ "item": "potion", "chance": 0.1, "limit": 2 },
+				{ "item": "longsword", "chance": 0.1, "limit": 1 },
+				{ "item": "broadsword", "chance": 0.1, "limit": 1 }
 			],
 			"goal": "stairs"
 		},
@@ -87,7 +91,9 @@
 			},
 			"item_spawns": [
 				{ "item": "map", "chance": 0.1, "limit": 1 },
-				{ "item": "potion", "chance": 0.1, "limit": 2 }
+				{ "item": "potion", "chance": 0.1, "limit": 2 },
+				{ "item": "longsword", "chance": 0.2, "limit": 1 },
+				{ "item": "broadsword", "chance": 0.1, "limit": 1 }
 			],
 			"goal": "stairs"
 		},
@@ -108,7 +114,8 @@
 			},
 			"item_spawns": [
 				{ "item": "map", "chance": 0.1, "limit": 1 },
-				{ "item": "potion", "chance": 0.1, "limit": 4 }
+				{ "item": "potion", "chance": 0.1, "limit": 4 },
+				{ "item": "broadsword", "chance": 0.1, "limit": 1 }
 			],
 			"goal": "amulet"
 		}
@@ -130,6 +137,20 @@
 				"---######---",
 				"------------"
 			]
+		}
+	},
+	"weapons": {
+		"shortsword": {
+			"name": "Shortsword",
+			"damage": 1
+		},
+		"longsword": {
+			"name": "Longsword",
+			"damage": 2
+		},
+		"broadsword": {
+			"name": "Broadsword",
+			"damage": 3
 		}
 	},
 	"themes": {

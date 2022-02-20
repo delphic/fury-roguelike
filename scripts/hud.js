@@ -13,6 +13,7 @@ module.exports = (function(){
 		};
 
 		let red = vec4.fromValues(1, 0, 0, 1);
+		let currentlyDisplayedWeapon = null;
 
 		hud.updateLevelDisplay = (depth) => {
 			if (hud.levelDisplay) {
@@ -73,6 +74,22 @@ module.exports = (function(){
 						})
 					);
 				}
+			}
+		};
+
+		hud.updateWeaponDisplay = (player) => {
+			if (player.weapon && player.weapon.name != currentlyDisplayedWeapon) {
+				hud.weaponDisplay = TextMesh.create({
+					text: player.weapon.name +  " (" + player.weapon.damage + ")",
+					scene: uiScene,
+					atlas: uiAtlas,
+					position: vec3.fromValues(canvas.width - uiAtlas.tileSize, canvas.height - 3 * uiAtlas.tileSize, 0),
+					alignment: TextMesh.Alignment.right
+				});
+				currentlyDisplayedWeapon = player.weapon.name;
+			} else if (!player.weapon && hud.weaponDisplay) {
+				hud.weaponDisplay.remove();
+				hud.weaponDisplay = null;
 			}
 		};
 

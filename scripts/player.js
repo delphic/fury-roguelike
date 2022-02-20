@@ -73,6 +73,9 @@ module.exports = (function(){
 				if (monsterIdx >= 0) {
 					let monster = monsters[monsterIdx];
 					monster.health -= 1;
+					if (player.weapon) {
+						monster.health -= player.weapon.damage;
+					}
 					if (monster.health <= 0) {
 						monsters.splice(monsterIdx, 1);
 						scene.remove(monster.sceneObject);

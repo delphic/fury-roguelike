@@ -157,7 +157,6 @@ module.exports = (function(){
 								));
 								break;
 							case "potion":
-								console.log("Spawned potion at" + builder.spawnPoints[i][0] + "," + builder.spawnPoints[i][1]);
 								world.items.push(spawner.spawnItem(
 									builder.spawnPoints[i],
 									"red_potion",
@@ -167,6 +166,24 @@ module.exports = (function(){
 										world.player.health = Math.min(world.player.health + 1, world.player.healthMax);
 								}));
 								break;
+							case "shortsword":
+							case "longsword":
+							case "broadsword":
+								world.items.push(spawner.spawnItem(
+									builder.spawnPoints[i],
+									item,
+									item,
+									() => {
+										let weapon = gameConfig.weapons[item];
+										if (!world.player.weapon || world.player.weapon.damage < weapon.damage) {
+											world.player.weapon = weapon;
+											hud.updateWeaponDisplay(world.player);
+										}
+										// HACK: remove from inventory immediately
+										world.player.inventory.length = world.player.inventory.length - 1;
+									},
+									null
+								));
 						}
 						itemsSpawned[item] += 1;
 						randomOffset += chance;
@@ -229,6 +246,7 @@ module.exports = (function(){
 			hud.updateHealthBar(world.player);
 			hud.updateLevelDisplay(depth);
 			hud.updateInventoryDisplay(world.player);
+			hud.updateWeaponDisplay(world.player);
 		};
 
 		state.update = (elapsed) => {
