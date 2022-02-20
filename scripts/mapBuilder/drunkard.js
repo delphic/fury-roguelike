@@ -33,7 +33,7 @@ module.exports =  (function(){
 	};
 
 	exports.create = (config) => {
-		let  { gameMap, fillRatio, staggerDist, monsterCount } = config;
+		let { gameMap, fillRatio, staggerDist, monsterCount } = config;
 		if (fillRatio < 0 && fillRatio >= 1) {
 			throw new Error("You must provide a fill ratio between 0 and 1");
 		}
@@ -104,11 +104,11 @@ module.exports =  (function(){
 		}
 
 		
-		let numSpawnedMonsters = 0;
-		while (numSpawnedMonsters < monsterCount && floorTiles.length > 0) {
+		let numSpawnPoints = 0;
+		while (numSpawnPoints < monsterCount && floorTiles.length > 0) {
 			let mapIdx = floorTiles.splice(Random.integer(0, floorTiles.length), 1);
 			builder.spawnPoints.push(vec2.fromValues( mapIdx % gameMap.width, Math.floor(mapIdx / gameMap.width) ));
-			numSpawnedMonsters++;
+			numSpawnPoints++;
 		}
 
 		return builder;
