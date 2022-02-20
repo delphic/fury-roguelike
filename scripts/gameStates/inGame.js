@@ -194,7 +194,7 @@ module.exports = (function(){
 				if (!itemSpawned) {
 					let monster = gameConfig.monsters[pickWeighted(levelDef.monster_weights)];
 					// TODO: Make use of damage stat
-					world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], monster.sprite, monster.health));
+					world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], monster.sprite, monster.health, monster.damage));
 				}
 			}
 	
@@ -300,7 +300,7 @@ module.exports = (function(){
 							monster.y = y;
 						}
 					} else if (distanceToPlayer == 1) {
-						world.player.health -= 1;
+						world.player.health -= monster.damage;
 					}
 				}
 

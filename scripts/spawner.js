@@ -44,8 +44,9 @@ module.exports = (function(){
 			return entity;
 		};
 
-		spawner.spawnMonster = (pos, name, health) => {
+		spawner.spawnMonster = (pos, name, health, damage) => {
 			let monster = spawnEntity(pos, name);
+			monster.damage = damage;
 			monster.health = health;
 			monster.healthMax = health;
 			return monster;
