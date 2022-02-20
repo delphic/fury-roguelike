@@ -241,6 +241,7 @@ module.exports = (function(){
 			for (let i = 0, l = world.player.inventory.length; i < l; i++) {
 				scene.remove(world.player.inventory[i].sceneObject);
 			}
+			world.player.weapon = null;
 			world.player.inventory.length = 0;
 			// refresh HUD
 			hud.updateHealthBar(world.player);
