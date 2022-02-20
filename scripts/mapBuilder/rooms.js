@@ -18,7 +18,7 @@ module.exports =  (function(){
 
 		// Add Rooms
 		let rooms = builder.rooms;
-		let maxRoomSize = 5;
+		let maxRoomSize = 10;
 		let failCount = 0;
 		while (builder.rooms.length < numRooms && failCount < 100) {
 			// Some 2D Bounds / Rect functions would be nice

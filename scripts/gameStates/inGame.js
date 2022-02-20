@@ -3,7 +3,6 @@ const Hud = require('../hud');
 const Spawner = require('../spawner');
 const GameMap = require('../gameMap');
 const GameState = require('./gameState');
-const BuilderType = require('../mapBuilder/builderType');
 const { Random } = Fury;
 const { vec2, vec3 } = Fury.Maths;
 
@@ -79,7 +78,7 @@ module.exports = (function(){
 		let intentPos = vec2.create();
 
 		let buildMap = (depth) => {
-			let w = 40, h = 20;
+			let w = 40, h = 40; // Rusty Roguelike used 80 / 50
 			let mapOrigin = vec3.fromValues(
 				-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
 				-Math.floor(0.5 * h) * dungeonAtlas.tileSize,

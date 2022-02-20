@@ -244,21 +244,23 @@ module.exports = (function(){
 		};
 		gameMap.playerNav = FlowMap.create(flowMapConfig);
 
+		let monsterCount = Math.round(w + h / 2);
+
 		switch(builderType) {
 			case BuilderType.drunkardsWalk:
 				gameMap.builder = DrunkardBuilder.create({
 					gameMap: gameMap,
 					fillRatio: 0.33,
 					staggerDist: 400,
-					monsterCount: 20 
+					monsterCount: monsterCount 
 				});
 				break;
 			default:
 			case BuilderType.rooms:
-				gameMap.builder = RoomsBuilder.create(gameMap, 20);
+				gameMap.builder = RoomsBuilder.create(gameMap, monsterCount);
 				break;
 			case BuilderType.cellularAutomata:
-				gameMap.builder = AutomataBuilder.create({ gameMap: gameMap, monsterCount: 20 });
+				gameMap.builder = AutomataBuilder.create({ gameMap: gameMap, monsterCount: monsterCount });
 		}
 
 		if (spawnExit) {
