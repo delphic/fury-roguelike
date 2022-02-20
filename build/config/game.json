@@ -14,5 +14,28 @@
 			"tileSize": 32,
 			"path": "images/dungeon-atlas.png"
 		}
+	},
+	"stamps": {
+		"fortress" :{
+			"width": 12,
+			"height": 11,
+			"tiles": [
+				"------------",
+				"---######---",
+				"---#----#---",
+				"---#S---#---",
+				"-###----###-",
+				"--S------S--",
+				"-###----###-",
+				"---#----#---",
+				"---#----#---",
+				"---######---",
+				"------------"
+			]
+		}
+	},
+	"themes": {
+		"dungeon": [ "stone_floor", "stone_wall", "stairs_down" ],
+		"forest": [ "dirt", "tree", "stairs_down" ]
 	}
 }
