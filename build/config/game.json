@@ -15,6 +15,104 @@
 			"path": "images/dungeon-atlas.png"
 		}
 	},
+	"monsters": {
+		"goblin": {
+			"damage": 1,
+			"health": 1,
+			"sprite": "goblin"
+		},
+		"claws": {
+			"damage": 2,
+			"health": 1,
+			"sprite": "claws"
+		},
+		"teeth": {
+			"damage": 1,
+			"health": 2,
+			"sprite": "teeth"
+		},
+		"goblin_boss": {
+			"damage": 2,
+			"health": 3,
+			"sprite": "goblin_boss"
+		}
+	},
+	"levels": [
+		{ 
+			"theme": "forest",
+			"width": 40,
+			"height": 40,
+			"generation_weights": { 
+				"cellularAutomata": 1
+			},
+			"monster_weights": {
+				"goblin": 1
+			},
+			"item_spawns": [
+				{ "item": "potion", "chance": 0.1, "limit": 4 }
+			],
+			"goal": "stairs"
+		},
+		{
+			"theme": "dungeon",
+			"width": 40,
+			"height": 40,
+			"generation_weights": { 
+				"rooms": 2,
+				"cellularAutomata": 1,
+				"drunkardsWalk": 1
+			},
+			"monster_weights": {
+				"goblin": 3,
+				"claws": 2
+			},
+			"item_spawns": [
+				{ "item": "map", "chance": 0.1, "limit": 1 },
+				{ "item": "potion", "chance": 0.1, "limit": 2 }
+			],
+			"goal": "stairs"
+		},
+		{
+			"theme": "dungeon",
+			"width": 40,
+			"height": 40,
+			"generation_weights": { 
+				"rooms": 2,
+				"cellularAutomata": 1,
+				"drunkardsWalk": 1
+			},
+			"monster_weights": {
+				"claws": 1,
+				"teeth": 1
+			},
+			"item_spawns": [
+				{ "item": "map", "chance": 0.1, "limit": 1 },
+				{ "item": "potion", "chance": 0.1, "limit": 2 }
+			],
+			"goal": "stairs"
+		},
+		{
+			"theme": "dungeon",
+			"width": 60,
+			"height": 60,
+			"generation_weights": { 
+				"rooms": 1,
+				"cellularAutomata": 1,
+				"drunkardsWalk": 1
+			},
+			"monster_weights": {
+				"claws": 2,
+				"teeth": 2,
+				"goblin": 1,
+				"goblin_boss": 1
+			},
+			"item_spawns": [
+				{ "item": "map", "chance": 0.1, "limit": 1 },
+				{ "item": "potion", "chance": 0.1, "limit": 4 }
+			],
+			"goal": "amulet"
+		}
+	],
 	"stamps": {
 		"fortress" :{
 			"width": 12,

@@ -3,6 +3,7 @@ const Hud = require('../hud');
 const Spawner = require('../spawner');
 const GameMap = require('../gameMap');
 const GameState = require('./gameState');
+const BuilderType = require('../mapBuilder/builderType');
 const { Random } = Fury;
 const { vec2, vec3 } = Fury.Maths;
 
@@ -14,6 +15,24 @@ module.exports = (function(){
 	let itemsByIndex = [];
 	let monstersByIndex = [];
 	let visibilitySet = [];
+
+	let pickWeighted = (weights) => {
+		let totalWeight = 0;
+		for (let key in weights) {
+			totalWeight += weights[key];
+		}
+
+		let randomValue = Random.value() * totalWeight;
+		let weightSoFar = 0;
+		for (let key in weights) {
+			weightSoFar += weights[key];
+			if (randomValue < weightSoFar) {
+				return key;
+			}
+		}
+		
+		return null;
+	};
 
 	let updateFogOfWar = (world) => {
 		for (let i = 0, l = visibilitySet.length; i < l; i++) {
@@ -78,7 +97,9 @@ module.exports = (function(){
 		let intentPos = vec2.create();
 
 		let buildMap = (depth) => {
-			let w = 40, h = 40; // Rusty Roguelike used 80 / 50
+			let levelDef = gameConfig.levels[depth];
+			
+			let w = levelDef.width, h = levelDef.height;
 			let mapOrigin = vec3.fromValues(
 				-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
 				-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
@@ -89,9 +110,9 @@ module.exports = (function(){
 				height: h,
 				position: mapOrigin,
 				atlas: dungeonAtlas,
-				theme: gameConfig.themes["dungeon"],
-				spawnExit: depth < 2,
-				builderType: Random.roll(0,2),
+				theme: gameConfig.themes[levelDef.theme],
+				spawnExit: levelDef.goal == "stairs",
+				builderType: BuilderType[pickWeighted(levelDef.generation_weights)],
 				stamp: gameConfig.stamps["fortress"]
 			});
 			let builder = world.map.builder;
@@ -110,39 +131,57 @@ module.exports = (function(){
 			camera.position[0] = world.player.position[0];
 			camera.position[1] = world.player.position[1];
 	
-			let mapsSpawned = 0, mapChance = 0.1;
-			let potionsSpawned = 0, potionChance = 0.1;
+			let itemsSpawned = {};
 	
 			for (let i = 0, l = builder.spawnPoints.length; i < l; i++) {
+				
+				let itemSpawned = false;
 				let randomValue = Random.value();
 				let randomOffset = 0;
-				if (mapsSpawned == 0 && randomValue < mapChance) {
-					world.items.push(spawner.spawnItem(
-						builder.spawnPoints[i],
-						"map",
-						"Dungeon Map",
-						null,
-						() => { world.map.revealMap(); }
-					));
-					mapsSpawned += 1;
-					randomOffset += mapChance;
-				} else if (potionsSpawned < 2 && randomValue < randomOffset + potionChance) {
-					world.items.push(spawner.spawnItem(
-						builder.spawnPoints[i],
-						"red_potion",
-						"Healing Potion",
-						null,
-						() => {
-							world.player.health = Math.min(world.player.health + 1, world.player.healthMax);
-					}));
-					potionsSpawned += 1;
-					randomOffset += potionChance;
-				} else {
-					world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], "goblin", 1));
+				for (let j = 0, n = levelDef.item_spawns.length; j < n; j++) {
+					let { item, chance, limit } = levelDef.item_spawns[j];
+
+					if (!itemsSpawned[item]) {
+						itemsSpawned[item] = 0;
+					}
+
+					if (itemsSpawned[item] < limit && randomValue < randomOffset + chance) {
+						switch (item) {
+							case "map":
+								world.items.push(spawner.spawnItem(
+									builder.spawnPoints[i],
+									"map",
+									"Dungeon Map",
+									null,
+									() => { world.map.revealMap(); }
+								));
+								break;
+							case "potion":
+								console.log("Spawned potion at" + builder.spawnPoints[i][0] + "," + builder.spawnPoints[i][1]);
+								world.items.push(spawner.spawnItem(
+									builder.spawnPoints[i],
+									"red_potion",
+									"Healing Potion",
+									null,
+									() => {
+										world.player.health = Math.min(world.player.health + 1, world.player.healthMax);
+								}));
+								break;
+						}
+						itemsSpawned[item] += 1;
+						randomOffset += chance;
+						itemSpawned = true;
+						break;
+					}
+				}
+				if (!itemSpawned) {
+					let monster = gameConfig.monsters[pickWeighted(levelDef.monster_weights)];
+					// TODO: Make use of damage stat
+					world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], monster.sprite, monster.health));
 				}
 			}
 	
-			if (depth == 2) {
+			if (levelDef.goal == "amulet") {
 				world.items.push(spawner.spawnItem(
 					builder.goal,
 					"amulet",
