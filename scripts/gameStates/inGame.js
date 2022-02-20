@@ -60,7 +60,7 @@ module.exports = (function(){
 	};
 
 	exports.create = (config) => {
-		let { canvas, camera, scene, uiScene, uiAtlas, dungeonAtlas, changeState } = config; 
+		let { canvas, camera, scene, uiScene, uiAtlas, dungeonAtlas, changeState, gameConfig } = config; 
 
 		let state = {};
 
@@ -89,13 +89,10 @@ module.exports = (function(){
 				height: h,
 				position: mapOrigin,
 				atlas: dungeonAtlas,
-				theme: {
-					0: "stone_floor",
-					1: "stone_wall",
-					2: "stairs_down"
-				},
+				theme: gameConfig.themes["dungeon"],
 				spawnExit: depth < 2,
-				builderType: Random.roll(0,2)
+				builderType: Random.roll(0,2),
+				stamp: gameConfig.stamps["fortress"]
 			});
 			let builder = world.map.builder;
 		
