@@ -16,7 +16,7 @@ module.exports = (function(){
         let w = Math.floor(canvas.width / uiAtlas.tileSize);
         let h = Math.floor(canvas.height / uiAtlas.tileSize);
 
-        let title, lore, instructions, enterText;
+        let title, titleUnderline, lore, instructions, enterText;
 
         let createText = (text, x, y, color) => {
             return TextMesh.create({ 
@@ -32,15 +32,12 @@ module.exports = (function(){
         state.enter = () => {
             let cx = Math.floor(w/2);
 
-            // TODO:
-            // Add Color to title (Rink) and enter text
-            // Add scale option to textMesh for Title -> x2
-
             title = createText("Fury Roguelike", cx, h-8, rink);
+            titleUnderline = createText("══════════════", cx, h-9, rink);
             let y = Math.floor(h/2);
             lore = createText("Seek the Amulet of Power to save your town from the monsters!", cx, y+5);
             instructions = createText("Use the arrow keys to move and attack, and space to wait.", cx, y+1);
-            enterText = createText("1. Enter Dungeon", cx, y-8, lime);
+            enterText = createText("1. Start Quest", cx, y-8, lime);
 
             scene.render();
             uiScene.render();
@@ -48,6 +45,7 @@ module.exports = (function(){
 
         state.exit = () => {
             title.remove();
+            titleUnderline.remove();
             lore.remove();
             instructions.remove();
             enterText.remove()
