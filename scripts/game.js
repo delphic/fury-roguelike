@@ -2,7 +2,7 @@ const Fury = require('../fury/src/fury');
 const TextMesh = require('./textmesh');
 const State = require('./gameStates/gameState');
 
-const { vec3 } = Fury.Maths;
+const { vec3, vec4 } = Fury.Maths;
 
 module.exports = (function(){
 	let exports = {};
@@ -10,6 +10,9 @@ module.exports = (function(){
 	let canvas;
 	let scene, uiScene, camera, uiCamera;
 	let uiAtlas, dungeonAtlas;
+
+	let red = vec4.fromValues(1.0, 0.0, 0.0, 1.0),
+		lime = vec4.fromValues(0.0, 1.0, 0.0, 1.0);
 
 	let endStateMessage = null;
 
@@ -74,14 +77,15 @@ module.exports = (function(){
 		changeState(State.mainMenu);
 	};
 
-	let createCenteredMessage = (text) => {
+	let createCenteredMessage = (text, color) => {
 		// Larger text Atlas would nice for big messages
 		return TextMesh.create({ 
 			text: text,
 			scene: uiScene,
 			atlas: uiAtlas,
 			position: vec3.fromValues(0.5 * canvas.width, 0.5 * canvas.height, 0),
-			alignment: TextMesh.Alignment.center
+			alignment: TextMesh.Alignment.center,
+			color: color
 		});
 	};
 
@@ -108,12 +112,12 @@ module.exports = (function(){
 				inGameState.enter();
 				break;
 			case State.victoryScreen:
-				endStateMessage = createCenteredMessage("You Win!");
+				endStateMessage = createCenteredMessage("You Win!", lime);
 				Fury.GameLoop.stop();
 				window.setTimeout(restart, 3000);
 				break;
 			case State.lossScreen:
-				endStateMessage = createCenteredMessage("You Lose!");
+				endStateMessage = createCenteredMessage("You Died!", red);
 				Fury.GameLoop.stop();
 				window.setTimeout(restart, 1000);
 				break;
