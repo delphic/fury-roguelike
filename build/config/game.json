@@ -36,7 +36,7 @@
 		},
 		"goblin_boss": {
 			"damage": 2,
-			"health": 3,
+			"health": 4,
 			"sprite": "goblin_boss",
 			"visionRange": 7
 		}
