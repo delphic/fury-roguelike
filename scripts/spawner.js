@@ -44,11 +44,12 @@ module.exports = (function(){
 			return entity;
 		};
 
-		spawner.spawnMonster = (pos, name, health, damage) => {
-			let monster = spawnEntity(pos, name);
-			monster.damage = damage;
-			monster.health = health;
-			monster.healthMax = health;
+		spawner.spawnMonster = (pos, def) => {
+			let monster = spawnEntity(pos, def.sprite);
+			monster.damage = def.damage;
+			monster.health = def.health;
+			monster.healthMax = def.health;
+			monster.visionRange = def.visionRange;
 			return monster;
 		};
 

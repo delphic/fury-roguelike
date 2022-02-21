@@ -19,22 +19,26 @@
 		"goblin": {
 			"damage": 1,
 			"health": 1,
-			"sprite": "goblin"
+			"sprite": "goblin",
+			"visionRange": 7
 		},
 		"claws": {
 			"damage": 2,
 			"health": 1,
-			"sprite": "claws"
+			"sprite": "claws",
+			"visionRange": 6
 		},
 		"teeth": {
 			"damage": 1,
 			"health": 2,
-			"sprite": "teeth"
+			"sprite": "teeth",
+			"visionRange": 7
 		},
 		"goblin_boss": {
 			"damage": 2,
 			"health": 3,
-			"sprite": "goblin_boss"
+			"sprite": "goblin_boss",
+			"visionRange": 7
 		}
 	},
 	"levels": [

@@ -22,6 +22,7 @@ module.exports = (function(){
 	exports.create = (entity, scene, tileSize) => {
 		let player = entity;
 
+		player.visionRange = 8;
 		player.inventory = [];
 
 		player.checkForInput = (elapsed, targetPos) => {

@@ -58,7 +58,7 @@ module.exports = (function(){
 			itemsByIndex[item.x + world.map.width * item.y] = item;
 		}
 
-		world.map.buildVisibilitySet(world.player.x, world.player.y, 8, visibilitySet);
+		world.map.buildVisibilitySet(world.player.x, world.player.y, world.player.visionRange, visibilitySet);
 
 		for (let i = 0, l = visibilitySet.length; i < l; i++) {
 			let index = visibilitySet[i];
@@ -139,77 +139,86 @@ module.exports = (function(){
 				let randomValue = Random.value();
 				let randomOffset = 0;
 				for (let j = 0, n = levelDef.item_spawns.length; j < n; j++) {
-					let { item, chance, limit } = levelDef.item_spawns[j];
+					let { item: name, chance, limit } = levelDef.item_spawns[j];
 
-					if (!itemsSpawned[item]) {
-						itemsSpawned[item] = 0;
+					if (!itemsSpawned[name]) {
+						itemsSpawned[name] = 0;
 					}
 
-					if (itemsSpawned[item] < limit && randomValue < randomOffset + chance) {
-						switch (item) {
-							case "map":
-								world.items.push(spawner.spawnItem(
-									builder.spawnPoints[i],
-									"map",
-									"Dungeon Map",
-									null,
-									() => { world.map.revealMap(); }
-								));
-								break;
-							case "potion":
-								world.items.push(spawner.spawnItem(
-									builder.spawnPoints[i],
-									"red_potion",
-									"Healing Potion",
-									null,
-									() => {
-										world.player.health = Math.min(world.player.health + 1, world.player.healthMax);
-								}));
-								break;
-							case "shortsword":
-							case "longsword":
-							case "broadsword":
-								world.items.push(spawner.spawnItem(
-									builder.spawnPoints[i],
-									item,
-									item,
-									() => {
-										let weapon = gameConfig.weapons[item];
-										if (!world.player.weapon || world.player.weapon.damage < weapon.damage) {
-											world.player.weapon = weapon;
-											hud.updateWeaponDisplay(world.player);
-										}
-										// HACK: remove from inventory immediately
-										world.player.inventory.length = world.player.inventory.length - 1;
-									},
-									null
-								));
-						}
-						itemsSpawned[item] += 1;
+					if (itemsSpawned[name] < limit && randomValue < randomOffset + chance) { 
+						world.items.push(spawnItem(name, builder.spawnPoints[i], spawner));
+						itemsSpawned[name] += 1;
 						randomOffset += chance;
 						itemSpawned = true;
 						break;
 					}
 				}
+
 				if (!itemSpawned) {
-					let monster = gameConfig.monsters[pickWeighted(levelDef.monster_weights)];
-					// TODO: Make use of damage stat
-					world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], monster.sprite, monster.health, monster.damage));
+					let monsterDef = gameConfig.monsters[pickWeighted(levelDef.monster_weights)];
+					world.monsters.push(spawner.spawnMonster(builder.spawnPoints[i], monsterDef));
 				}
 			}
 	
 			if (levelDef.goal == "amulet") {
-				world.items.push(spawner.spawnItem(
-					builder.goal,
-					"amulet",
-					"Amulet of Power",
-					() => {
-						changeState(GameState.victoryScreen);
-				}));
+				world.items.push(spawnItem(levelDef.goal, builder.goal, spawner));
 			}
 			updateFogOfWar(world);
 		};
-	
+
+		let spawnItem = (name, pos, spawner) => {
+			let item = null;
+			switch (name) {
+				case "map":
+					item = spawner.spawnItem(
+						pos,
+						"map",
+						"Dungeon Map",
+						null,
+						() => { world.map.revealMap(); }
+					);
+					break;
+				case "potion":
+					item = spawner.spawnItem(
+						pos,
+						"red_potion",
+						"Healing Potion",
+						null,
+						() => {
+							world.player.health = Math.min(world.player.health + 1, world.player.healthMax);
+					});
+					break;
+				case "amulet":
+					item = spawner.spawnItem(
+						pos,
+						"amulet",
+						"Amulet of Power",
+						() => {
+							changeState(GameState.victoryScreen);
+					})
+					break;
+				case "shortsword":
+				case "longsword":
+				case "broadsword":
+					item = spawner.spawnItem(
+						pos,
+						name,
+						name,
+						() => {
+							let weapon = gameConfig.weapons[name];
+							if (!world.player.weapon || world.player.weapon.damage < weapon.damage) {
+								world.player.weapon = weapon;
+								hud.updateWeaponDisplay(world.player);
+							}
+							// HACK: remove from inventory immediately
+							world.player.inventory.length = world.player.inventory.length - 1;
+						},
+						null
+					);
+					break;
+			}
+			return item;
+		};
 
 		state.enter = () => {
 			buildMap(depth);
@@ -273,7 +282,7 @@ module.exports = (function(){
 					let monster = world.monsters[i];
 					let x = px = monster.x, y = py = monster.y;
 					let distanceToPlayer = nav.getValue(x, y, 0);
-					if (distanceToPlayer > 1 && distanceToPlayer < 7
+					if (distanceToPlayer > 1 && distanceToPlayer < monster.visionRange
 						&& world.map.hasLineOfSight(world.player.x, world.player.y, monster.x, monster.y)) {
 						// Player -> monster to ensure monster 'sight' matches player expectation
 						// Move towards player until within 1 square
