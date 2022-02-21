@@ -225,10 +225,11 @@ module.exports = (function(){
 			if (!hud) {
 				hud = Hud.create({ canvas: canvas, uiAtlas: uiAtlas, uiScene: uiScene, world: world });
 			}
-			hud.updateLevelDisplay(depth);
+			hud.refresh(world.player, depth);
 		};
 
 		state.exit = () => {
+			hud.clear();
 			// Clean up existing level
 			world.map.cleanUp();
 			for (let i = 0, l = world.monsters.length; i < l; i++) {
@@ -240,8 +241,6 @@ module.exports = (function(){
 			}
 			world.items.length = 0;
 			world.player.sceneObject.active = false;
-			// Increase depth and build new map
-			depth += 1;
 		};
 
 		state.reset = () => {
@@ -252,11 +251,6 @@ module.exports = (function(){
 			}
 			world.player.weapon = null;
 			world.player.inventory.length = 0;
-			// refresh HUD
-			hud.updateHealthBar(world.player);
-			hud.updateLevelDisplay(depth);
-			hud.updateInventoryDisplay(world.player);
-			hud.updateWeaponDisplay(world.player);
 		};
 
 		state.update = (elapsed) => {
@@ -324,6 +318,7 @@ module.exports = (function(){
 			}
 
 			if (world.map.hasExit && world.player.x == world.map.builder.goal[0] && world.player.y == world.map.builder.goal[1]) {
+				depth += 1;
 				changeState(GameState.inGame);
 			} else {
 				scene.render();

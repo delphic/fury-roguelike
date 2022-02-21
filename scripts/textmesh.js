@@ -13,7 +13,9 @@ module.exports = (function(){
 
 	exports.create = (config) => {
 		let { text, scene, atlas, position, alignment, color } = config;
-		let textMesh = {}; 
+		let textMesh = {
+			text: text
+		};
 
 		let offset = 0;
 		if (alignment == Alignment.center) {
