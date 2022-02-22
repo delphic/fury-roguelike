@@ -3,7 +3,7 @@ A dungeon crawler with procedurally generated levels, monsters of increasing dif
 
 ## Story
 The hero's hometown is suffering from a plague of monsters. Welling up from the deep, they seem unending.
-Legend tells of the Amulet of Yala - Yet Another Lost Amulet - that can be used to stem the tide. 
+Legend tells of the Amulet of Power that can be used to stem the tide. 
 After a long night at the tavern, the hero promises to save the day - and sets forth into the dungeon.
 
 ## Basic Game Loops
@@ -27,5 +27,12 @@ After a long night at the tavern, the hero promises to save the day - and sets f
 2. Add more interesting dungeon designs
 3. Add some dungeon themes
 4. Add multiple layers to the dungeon, with the Amulet on the last one
-5. Add varied weapons to the game
+5. Add weapons with increasing damage to the game
 6. Move to a data-driven design for spawning enemies
+
+## Extensions
+1. Single quad with texture + palette lookup tilemap
+2. Add depth to combat with per weapon strike zones and held attacks
+3. Improve AI with reaction times, opportunity attacks and varied pathfinding
+4. Add visual effects and simple animations
+5. Half tile system for improved art whilst keeping generation simple.
