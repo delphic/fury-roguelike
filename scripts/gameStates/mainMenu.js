@@ -1,5 +1,5 @@
 const Fury = require('../../fury/src/fury');
-const TextMesh = require('../textmesh');
+const { TextMesh } = Fury;
 const GameState = require('./gameState');
 const { vec3, vec4 } = Fury.Maths;
 

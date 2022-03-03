@@ -1,6 +1,6 @@
-const Atlas = require('./atlas');
 const Player = require('./player');
 const Fury = require('../fury/src/fury');
+const { Atlas } = Fury;
 const { vec3 } = Fury.Maths;
 
 module.exports = (function(){

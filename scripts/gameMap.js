@@ -1,4 +1,4 @@
-const TileMap = require('./tilemap');
+const { Maths, TileMap } = require('../fury/src/fury');
 const FlowMap = require('./flowMap');
 const BuilderType = require('./mapBuilder/buildertype');
 const AutomataBuilder = require('./mapBuilder/automata');
@@ -6,7 +6,6 @@ const DrunkardBuilder = require('./mapBuilder/drunkard');
 const RoomsBuilder = require('./mapBuilder/rooms'); 
 const Stamp = require('./mapBuilder/stamp');
 const TileType = require('./tileType');
-const Maths = require('../fury/src/maths');
 
 module.exports = (function(){
 	let exports = {};

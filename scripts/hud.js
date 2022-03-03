@@ -1,5 +1,5 @@
-const TextMesh = require('./textmesh');
 const Fury = require('../fury/src/fury');
+const { TextMesh } = Fury;
 const { vec3, vec4 } = Fury.Maths;
 
 module.exports = (function(){

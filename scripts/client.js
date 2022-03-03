@@ -1,5 +1,4 @@
 const Game = require('./game');
-const Atlas = require('./atlas');
 const Fury = require('../fury/src/fury');
 const furyCanvasId = "fury";
 
@@ -12,7 +11,6 @@ let config;
 
 window.addEventListener('load', () => {
 	Fury.init({ canvasId: furyCanvasId, glContextAttributes: { antialias: false } });
-
 
 	canvas = document.getElementById(furyCanvasId);
 
@@ -71,7 +69,7 @@ let loadAssets = (callback) => {
 
 	for(let key in config.atlases) {
 		assetsLoading++
-		Atlas.load(config.atlases[key], (atlas) => {
+		Fury.Atlas.load(config.atlases[key], (atlas) => {
 			atlases[key] = atlas;
 			onAssetLoadComplete();
 		});
