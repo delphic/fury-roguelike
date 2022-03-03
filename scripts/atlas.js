@@ -19,6 +19,7 @@ module.exports = (function(){
 		if (alpha !== undefined && alpha != atlas.materialConfig.properties.alpha) {
 			name += "_" + (alpha ? "a1" : "a0");
 		}
+
 		if (color !== undefined && (color[0] != 1 || color[1] != 1 || color[2] != 1 || color[3] != 1)) {
 			name += "_" + color[0] + "_" + color[1] + "_" + color[2] + "_" + color[3];
 		}
@@ -65,18 +66,29 @@ module.exports = (function(){
 		return prefabName;
 	};
 
-	exports.init = (atlas, image, alpha) => {
+	exports.create = (config, image) => {
+		let atlas = Object.create(config);
+		atlas.alpha = atlas.alpha === undefined ? true : !!atlas.alpha;
 		atlas.texture = Fury.Renderer.createTexture(image, "low");
 		atlas.materialConfig = {
 			shader: Fury.Shaders.Sprite,
 			texture: atlas.texture,
 			properties: {
-				alpha: alpha,
+				alpha: atlas.alpha,
 				offset: [ 0, 0 ],
 				scale: [ 1 / atlas.size, 1 / atlas.size ]
 			}
 		};
 		atlas.meshConfig = Primitives.createQuadMeshConfig(atlas.tileSize, atlas.tileSize);
+		return atlas;
+	};
+
+	exports.load = (config, callback) => {
+		let image = new Image();
+		image.onload = () => {
+			callback(exports.create(config, image));
+		};
+		image.src = config.path;
 	};
 
 	return exports;

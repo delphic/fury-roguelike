@@ -5,10 +5,10 @@ const furyCanvasId = "fury";
 
 let scaleFactor = 1;
 let allElementsHeight = 0;
+let atlases = {};
 let canvasWidth = 640, canvasHeight = 360;
 let canvas;
 let config;
-
 
 window.addEventListener('load', () => {
 	Fury.init({ canvasId: furyCanvasId, glContextAttributes: { antialias: false } });
@@ -69,32 +69,20 @@ let loadAssets = (callback) => {
 		}
 	};
 
-	let loadAtlas = (atlas, alpha) => {
-		assetsLoading++;
-		loadImage(atlas.path, (image) => {
-			Atlas.init(atlas, image, alpha);
+	for(let key in config.atlases) {
+		assetsLoading++
+		Atlas.load(config.atlases[key], (atlas) => {
+			atlases[key] = atlas;
 			onAssetLoadComplete();
 		});
-	};
-
-	for(let key in config.atlases) {
-		loadAtlas(config.atlases[key], true);
 	}
-};
-
-let loadImage = (path, callback) => {
-	let image = new Image();
-	image.onload = () => {
-		callback(image);
-	};
-	image.src = path;
 };
 
 let start = () => {
 	Game.init({
 		canvas: canvas,
-		uiAtlas: config.atlases["cp437"],
-		dungeonAtlas: config.atlases["dungeon"],
+		uiAtlas: atlases["cp437"],
+		dungeonAtlas: atlases["dungeon"],
 		gameConfig: config
 	});
 	Fury.GameLoop.init({ loop: Game.update });
