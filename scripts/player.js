@@ -19,7 +19,7 @@ module.exports = (function(){
 		}
 	};
 
-	exports.create = (entity, scene, tileSize) => {
+	exports.create = (entity, scene, tileWidth, tileHeight) => {
 		let player = entity;
 
 		player.visionRange = 8;
@@ -84,8 +84,8 @@ module.exports = (function(){
 				} else {
 					player.x = targetX;
 					player.y = targetY;
-					player.position[0] = player.x * tileSize + map.origin[0]
-					player.position[1] = player.y * tileSize + map.origin[1];
+					player.position[0] = player.x * tileWidth + map.origin[0]
+					player.position[1] = player.y * tileHeight + map.origin[1];
 
 					let itemIdx = items.findIndex(i => i.x == player.x && i.y == player.y);
 					if (itemIdx >= 0) {
