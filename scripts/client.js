@@ -11,6 +11,7 @@ let config;
 
 window.addEventListener('load', () => {
 	Fury.init({ canvasId: furyCanvasId, glContextAttributes: { antialias: false } });
+	Fury.TextMesh.alignmentStyle = Fury.TextMesh.AlignmentStyle.grid;
 
 	canvas = document.getElementById(furyCanvasId);
 
