@@ -101,8 +101,8 @@ module.exports = (function(){
 			
 			let w = levelDef.width, h = levelDef.height;
 			let mapOrigin = vec3.fromValues(
-				-Math.floor(0.5 * w) * dungeonAtlas.tileSize,
-				-Math.floor(0.5 * h) * dungeonAtlas.tileSize,
+				-Math.floor(0.5 * w) * dungeonAtlas.tileWidth,
+				-Math.floor(0.5 * h) * dungeonAtlas.tileHeight,
 				-16);
 			world.map = GameMap.create({
 				scene: scene,
@@ -125,8 +125,8 @@ module.exports = (function(){
 				world.player.sceneObject.active = true;
 				world.player.x = builder.playerStart[0];
 				world.player.y = builder.playerStart[1];
-				world.player.position[0] = world.player.x * dungeonAtlas.tileSize + world.map.origin[0];
-				world.player.position[1] = world.player.y * dungeonAtlas.tileSize + world.map.origin[1];
+				world.player.position[0] = world.player.x * dungeonAtlas.tileWidth + world.map.origin[0];
+				world.player.position[1] = world.player.y * dungeonAtlas.tileHeight + world.map.origin[1];
 			}
 			camera.position[0] = world.player.position[0];
 			camera.position[1] = world.player.position[1];
@@ -297,8 +297,8 @@ module.exports = (function(){
 						if ((px != x || py != y) && !takenIndices[x + world.map.width * y]) {
 							takenIndices[px + world.map.width * py] = false;
 							takenIndices[x + world.map.width * y] = true;
-							monster.position[0] = x * dungeonAtlas.tileSize + world.map.origin[0];
-							monster.position[1] = y * dungeonAtlas.tileSize + world.map.origin[1];
+							monster.position[0] = x * dungeonAtlas.tileWidth + world.map.origin[0];
+							monster.position[1] = y * dungeonAtlas.tileHeight + world.map.origin[1];
 							monster.x = x;
 							monster.y = y;
 						}

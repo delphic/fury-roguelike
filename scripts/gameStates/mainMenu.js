@@ -13,8 +13,8 @@ module.exports = (function(){
         let { canvas, scene, uiScene, uiAtlas, changeState } = config;
         let state = {};
 
-        let w = Math.floor(canvas.width / uiAtlas.tileSize);
-        let h = Math.floor(canvas.height / uiAtlas.tileSize);
+        let w = Math.floor(canvas.width / uiAtlas.tileWidth);
+        let h = Math.floor(canvas.height / uiAtlas.tileHeight);
 
         let title, titleUnderline, lore, instructions, enterText;
 
@@ -23,7 +23,7 @@ module.exports = (function(){
                 text: text,
                 scene: uiScene,
                 atlas: uiAtlas,
-                position: vec3.fromValues(x * uiAtlas.tileSize, y * uiAtlas.tileSize, 0),
+                position: vec3.fromValues(x * uiAtlas.tileWidth, y * uiAtlas.tileHeight, 0),
                 alignment: TextMesh.Alignment.center,
                 color: color
             });

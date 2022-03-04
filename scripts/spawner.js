@@ -13,8 +13,8 @@ module.exports = (function(){
 
 		let spawnEntity = (pos, name) => {
 			let position = vec3.fromValues(
-				pos[0] * atlas.tileSize + mapOrigin[0],
-				pos[1] * atlas.tileSize + mapOrigin[1],
+				pos[0] * atlas.tileWidth + mapOrigin[0],
+				pos[1] * atlas.tileHeight + mapOrigin[1],
 				0
 			);
 			let entity = {
@@ -30,7 +30,7 @@ module.exports = (function(){
 		}
 
 		spawner.spawnPlayer = (pos, health) => {
-			let player = Player.create(spawnEntity(pos, "player"), scene, atlas.tileSize);
+			let player = Player.create(spawnEntity(pos, "player"), scene, atlas.tileWidth, atlas.tileHeight);
 			player.health = health;
 			player.healthMax = health;
 			return player;

@@ -22,7 +22,7 @@ module.exports = (function(){
 				text: "Level: " + (depth + 1),
 				scene: uiScene,
 				atlas: uiAtlas,
-				position: vec3.fromValues(canvas.width - uiAtlas.tileSize, canvas.height - 2 * uiAtlas.tileSize, 0),
+				position: vec3.fromValues(canvas.width - uiAtlas.tileWidth, canvas.height - 2 * uiAtlas.tileHeight, 0),
 				alignment: TextMesh.Alignment.right
 			});
 		};
@@ -33,7 +33,7 @@ module.exports = (function(){
 					text: "Health:",
 					scene: uiScene,
 					atlas: uiAtlas,
-					position: vec3.fromValues(uiAtlas.tileSize, canvas.height - 2 * uiAtlas.tileSize, 0),
+					position: vec3.fromValues(uiAtlas.tileWidth, canvas.height - 2 * uiAtlas.tileHeight, 0),
 					alignment: TextMesh.Alignment.left
 				});
 			}
@@ -49,7 +49,7 @@ module.exports = (function(){
 				text: healthString,
 				scene: uiScene,
 				atlas: uiAtlas,
-				position: vec3.fromValues(uiAtlas.tileSize * 8, canvas.height - 2 * uiAtlas.tileSize, 0),
+				position: vec3.fromValues(uiAtlas.tileWidth * 8, canvas.height - 2 * uiAtlas.tileHeight, 0),
 				alignment: TextMesh.Alignment.left,
 				color: red
 			});
@@ -69,7 +69,7 @@ module.exports = (function(){
 							text: (i + 1) + ". " + player.inventory[i].name,
 							scene: uiScene,
 							atlas: uiAtlas,
-							position: vec3.fromValues(uiAtlas.tileSize, canvas.height - (4 + i) * uiAtlas.tileSize, 0)
+							position: vec3.fromValues(uiAtlas.tileWidth, canvas.height - (4 + i) * uiAtlas.tileHeight, 0)
 						})
 					);
 				}
@@ -85,7 +85,7 @@ module.exports = (function(){
 					text: player.weapon.name +  " (" + player.weapon.damage + ")",
 					scene: uiScene,
 					atlas: uiAtlas,
-					position: vec3.fromValues(canvas.width - uiAtlas.tileSize, canvas.height - 3 * uiAtlas.tileSize, 0),
+					position: vec3.fromValues(canvas.width - uiAtlas.tileWidth, canvas.height - 3 * uiAtlas.tileHeight, 0),
 					alignment: TextMesh.Alignment.right
 				});
 			} else if (!player.weapon && hud.weaponDisplay) {
